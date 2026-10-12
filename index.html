@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>國中小英文 各課單字有聲字表｜Word Mapper</title>
+<meta name="description" content="國小三年級到國中三年級英文各課單字有聲字表，一鍵開啟 Word Mapper 看每個字的拼字與聲音對照。" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Noto+Sans:wght@400;700;800&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --c-primary:#887ea6; --c-primary-deep:#5f5582; --c-primary-soft:#efecf6; --c-primary-tint:#f6f4fa;
+    --c-accent:#10b981;
+    --c-text:#1f2937; --c-muted:#64748b; --c-bg:#f3f1f7; --c-border:#e6e2ee;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;overflow-x:hidden}
+  body{font-family:"Noto Sans TC","Noto Sans",system-ui,sans-serif;background:var(--c-bg);color:var(--c-text);line-height:1.6;font-size:16px;padding:1.2rem 0 2rem}
+  .container{max-width:880px;margin:0 auto;background:#fff;border-radius:20px;box-shadow:0 10px 30px rgba(95,85,130,.10);overflow:hidden}
+  .inner{padding:1.5rem 1.6rem 2rem}
+
+  /* ---- 首頁標題區 ---- */
+  .hero{position:relative;padding:3.2rem 1.6rem 2rem;text-align:center;color:#fff;
+    background:linear-gradient(135deg,#6e6392 0%,#887ea6 55%,#a79dc4 100%);overflow:hidden}
+  .hero::before,.hero::after{content:"";position:absolute;border-radius:50%;background:rgba(255,255,255,.08)}
+  .hero::before{width:260px;height:260px;right:-80px;top:-120px}
+  .hero::after{width:180px;height:180px;left:-60px;bottom:-100px}
+  .hero > *{position:relative}
+  .eyebrow{display:inline-block;font-size:.8rem;font-weight:700;letter-spacing:.18em;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.35);border-radius:999px;padding:.2rem .9rem;margin-bottom:.9rem}
+  .hero h1{font-size:2rem;font-weight:900;line-height:1.3;margin:0 0 .4rem;letter-spacing:.02em}
+  .hero h1 small{display:block;font-size:1.05rem;font-weight:500;opacity:.92;margin-top:.3rem;letter-spacing:.08em}
+  .hero .lead{color:rgba(255,255,255,.9);margin:.8rem 0 0;font-size:.98rem}
+  .steps{display:flex;justify-content:center;align-items:center;gap:.45rem;flex-wrap:nowrap;margin-top:1.1rem}
+  .step{display:inline-flex;align-items:center;gap:.4rem;background:rgba(255,255,255,.95);color:var(--c-primary-deep);border-radius:999px;padding:.35rem .9rem;font-size:.9rem;font-weight:700}
+  .step b{display:inline-grid;place-items:center;width:1.35rem;height:1.35rem;border-radius:50%;background:var(--c-primary);color:#fff;font-size:.78rem}
+  .step-arrow{color:rgba(255,255,255,.7);align-self:center;font-weight:700}
+  .hero-back{position:absolute;left:1rem;top:.9rem;color:rgba(255,255,255,.9);font-size:.85rem;font-weight:700;text-decoration:none;background:rgba(0,0,0,.12);padding:.2rem .7rem;border-radius:999px}
+  .hero-back:hover{background:rgba(0,0,0,.22)}
+
+  button.back{display:inline-flex;align-items:center;gap:.3rem;margin-bottom:.9rem;color:var(--c-primary-deep);font-weight:700;background:var(--c-primary-soft);border:none;padding:.35rem .9rem;border-radius:999px;font:inherit;font-weight:700;cursor:pointer}
+  button.back:hover{background:#e3dfee}
+
+  /* ---- 年級 ---- */
+  .stage{margin-bottom:1.5rem}
+  .stage h2{display:flex;align-items:center;gap:.6rem;font-size:1rem;font-weight:900;color:var(--c-primary-deep);margin:0 0 .7rem;letter-spacing:.06em}
+  .stage h2::after{content:"";flex:1;height:1px;background:var(--c-border)}
+  .grades{display:grid;grid-template-columns:repeat(4,1fr);gap:.8rem}
+  .grade{border:2px solid var(--c-border);background:#fff;border-radius:16px;padding:.9rem .5rem .8rem;text-align:center;color:inherit}
+  .grade .g{display:block;font-family:"Noto Sans",sans-serif;font-size:2rem;font-weight:800;line-height:1.1;color:#0f172a}
+  .grade .g small{font-family:"Noto Sans TC",sans-serif;font-size:.8rem;font-weight:700;color:var(--c-muted);margin-left:.15rem}
+  .pubs{display:flex;justify-content:center;gap:.35rem;margin-top:.6rem}
+  .pub{display:inline-grid;place-items:center;width:2.1rem;height:2.1rem;border-radius:50%;font-size:.85rem;font-weight:700;border:2px solid var(--c-primary);background:#fff;color:var(--c-primary-deep);cursor:pointer;font-family:inherit;padding:0;transition:all .15s}
+  .pub:hover:not(:disabled){background:var(--c-primary);color:#fff;transform:translateY(-1px);box-shadow:0 4px 10px rgba(136,126,166,.3)}
+  .pub:disabled{border:1.5px dashed #cfcadb;color:#c4bfd2;cursor:default;background:#fbfafd}
+  .grade.none{border-style:dashed;background:#faf9fc}
+  .grade.none .g{color:#b4afc4}
+
+  /* ---- 版本 ---- */
+  .crumb{font-size:1.5rem;font-weight:900;margin:0 0 .2rem;color:#0f172a}
+  .crumb small{display:block;font-size:.85rem;font-weight:500;color:var(--c-muted);letter-spacing:.05em}
+  .tabs{display:flex;flex-wrap:wrap;gap:.5rem;margin:1rem 0 1.4rem}
+  .tab{border:2px solid var(--c-border);background:#fff;border-radius:999px;padding:.4rem 1.2rem;font-weight:700;font-size:.95rem;color:#334155;cursor:pointer;font-family:inherit;transition:all .15s}
+  .tab:hover:not(:disabled){border-color:var(--c-primary);color:var(--c-primary-deep)}
+  .tab[aria-selected="true"]{background:var(--c-primary);border-color:var(--c-primary);color:#fff;box-shadow:0 4px 10px rgba(136,126,166,.3)}
+  .tab:disabled{opacity:.45;cursor:default;border-style:dashed}
+
+  .book{margin-bottom:2rem}
+  .book-head{display:flex;flex-wrap:wrap;align-items:center;gap:.3rem .8rem;margin-bottom:.9rem;padding-left:.8rem;border-left:4px solid var(--c-primary)}
+  .book-head h3{font-size:1.15rem;font-weight:900;margin:0;color:#0f172a}
+  .book-head .meta{font-family:"Noto Sans",sans-serif;color:var(--c-muted);font-size:.82rem;font-weight:700;background:var(--c-primary-tint);border-radius:6px;padding:.1rem .5rem}
+
+  .lessons{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:.9rem}
+  .lesson{display:flex;flex-direction:column;gap:.55rem;border:1.5px solid var(--c-border);border-radius:14px;padding:.9rem 1rem;background:#fff;text-decoration:none;color:inherit;transition:border-color .15s,transform .1s,box-shadow .15s}
+  .lesson:hover{border-color:var(--c-primary);box-shadow:0 8px 18px rgba(136,126,166,.18);transform:translateY(-2px)}
+  .lesson-top{display:flex;justify-content:space-between;align-items:center;gap:.5rem}
+  .lesson-name{font-weight:900;font-size:1.08rem;color:#0f172a}
+  .lesson-count{font-size:.78rem;font-weight:700;color:var(--c-primary-deep);background:var(--c-primary-soft);border-radius:999px;padding:.05rem .55rem;white-space:nowrap}
+  .words{font-family:"Noto Sans",sans-serif;font-size:.88rem;color:#475569;line-height:1.55;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+  .open{align-self:flex-start;background:var(--c-primary);color:#fff;border-radius:10px;padding:.3rem .9rem;font-weight:700;font-size:.9rem;transition:background .15s}
+  .lesson:hover .open{background:var(--c-primary-deep)}
+  .empty{padding:1.5rem 1rem;text-align:center;color:var(--c-muted);background:var(--c-primary-tint);border-radius:12px}
+
+  .note{margin-top:1.8rem;padding:.9rem 1.1rem;background:var(--c-primary-tint);border-radius:12px;font-size:.88rem;color:#475569;border:1px solid var(--c-border)}
+  .note p{margin:.2rem 0}
+  footer{text-align:center;color:var(--c-muted);font-size:.85rem;margin-top:1.4rem}
+  footer a{color:var(--c-primary-deep);font-weight:700;text-decoration:none}
+  footer a:hover{text-decoration:underline}
+  [hidden]{display:none!important}
+
+  @media (max-width:640px){
+    body{padding:0}
+    .container{border-radius:0;box-shadow:none}
+    .inner{padding:1.2rem 16px 2rem}
+    .hero{padding:3.6rem 16px 1.6rem}
+    .hero h1{font-size:1.55rem}
+    .hero h1 small{font-size:.95rem}
+    .step{padding:.3rem .7rem;font-size:.85rem}
+    .grades{grid-template-columns:repeat(2,1fr)}
+    .grade .g{font-size:1.8rem}
+    .lessons{grid-template-columns:1fr}
+    .crumb{font-size:1.3rem}
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- 第一層：年級 -->
+  <section id="viewGrades">
+    <header class="hero">
+      <a class="hero-back" href="https://jinshuanyu.github.io/word-mapper/">← Word Mapper</a>
+      <h1>國中小英文<br>各課單字有聲字表<small>英文拼字 × 聲音對照</small></h1>
+      <p class="lead">3 ~ 9 年級，各版本各課有聲字表</p>
+      <div class="steps">
+        <span class="step"><b>1</b>年級</span><span class="step-arrow">›</span>
+        <span class="step"><b>2</b>版本</span><span class="step-arrow">›</span>
+        <span class="step"><b>3</b>課別</span>
+      </div>
+    </header>
+    <div class="inner"><div id="stages"></div></div>
+  </section>
+
+  <!-- 第二層：版本 → 冊 → 課 -->
+  <section id="viewGrade" hidden>
+    <div class="inner">
+      <button class="back" type="button" id="backBtn">← 選其他年級</button>
+      <p class="crumb" id="crumb"></p>
+      <div class="tabs" id="tabs" role="tablist"></div>
+      <div id="books"></div>
+    </div>
+  </section>
+
+  <div class="inner" style="padding-top:0">
+    <div class="note">
+      <p>💡 字表可以生成 PDF，也可以分享給其他人。</p>
+    </div>
+    <footer><a href="https://jinshuanyu.github.io/word-mapper/">Word Mapper</a>｜英文拼字 × 聲音對照</footer>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   新增課本：在 BOOKS 加一個物件即可，頁面會自己長出年級、版本、連結。
+   grade    ：年級（要跟 GRADES 裡的名稱一樣，例 "小三"、"國一"）
+   term     ："上" 或 "下"
+   publisher：版本（例 "康軒"、"翰林"、"南一"、"何嘉仁"）
+   code     ：字表標題前綴（例 "HWG B1"）
+   lessons  ：[ 課名, 標題後綴, "單字 用空白隔開" ]
+              標題 = code + 後綴（"HWG B1" + "L1" → "HWG B1L1"）
+   句型請把單字照順序連著寫，例如 "good morning"。
+   ============================================================ */
+const YEAR = "115 學年度";
+
+const GRADES = [
+  { stage: "國小", items: ["小三", "小四", "小五", "小六"] },
+  { stage: "國中", items: ["國一", "國二", "國三"] }
+];
+const PUBLISHERS = {
+  "國小": ["康軒", "翰林", "南一", "何嘉仁"],
+  "國中": ["康軒", "翰林", "南一"]
+};
+
+const BOOKS = [
+  {
+    grade: "小三", term: "上", publisher: "翰林",
+    title: "HWG 第一冊", code: "HWG B1",
+    lessons: [
+      ["Lesson 0", "L0",  "Abu Edison hi I hello Rocky one two three four five ant apple bag boy cat cup dog duck egg elephant"],
+      ["Lesson 1", "L1",        "name what your Amber I'm fine is my Mia how are you Teddy am fan fish girl goat hand hat ink insect jam jet"],
+      ["Lesson 2", "L2",        "how old eight nine year thank you you're welcome seven six ten key kite leg lion milk monkey neck nose otter ox"],
+      ["Lesson 3", "L3",        "this cool a an eraser it marker that good job thanks book pen pencil ruler pig pink queen quiz rabbit snake sun tiger turtle"],
+      ["Lesson 4", "L4",        "color black good morning red yellow blue green white good afternoon umbrella up van vest watch window box fox yogurt yo-yo zebra zoo"],
+      ["補充",     " 補充", "bat ghost pumpkin witch spider vampire happy Halloween trick or treat"]
+    ]
+  },
+  {
+    grade: "小四", term: "上", publisher: "康軒",
+    title: "WW 第三冊", code: "WW B3",
+    lessons: [
+      ["Lesson 0",    "L0",   "eleven twelve thirteen fourteen fifteen sixteen seventeen eighteen nineteen twenty cap cape mat mate tap tape"],
+      ["Lesson 1",    "L1",           "how rainy sunny weather cloudy windy cold hot pet Pete jet Chinese Ted theme park"],
+      ["Lesson 2",    "L2",           "o'clock time fifty forty thirty twenty-five kit kite pin pine win wine"],
+      ["Lesson 3",    "L3",           "eraser pencil book marker pen ruler cod code hop hope rob robe"],
+      ["Lesson 4",    "L4",           "chair where desk on box in cub cube cut cute duck duke"],
+      ["補充",        " 補充", "ghost jack-o'-lantern mummy vampire witch"]
+    ]
+  },
+  {
+    grade: "國三", term: "上", publisher: "康軒",
+    title: "KS 第五冊", code: "KS B5",
+    lessons: [
+      ["Lesson 1", "L1", "subject history topic hairdryer yet century freeze froze potato stick American soldier main language since celebrate national thick fry chocolate bunny candy pumpkin bake Christmas Eve nobody wave inch king"],
+      ["Lesson 2", "L2", "delivery among age chart page interested reason helpful tired offer discount driver uniform excited boring bored tiring surprising surprised tip couch interest mind chance list at least location tap button"],
+      ["Lesson 3", "L3", "form childhood relative expect public such as everywhere company equal hard-working lawyer engineer president model picture lovely born present pretty brave be filled with stupid honest spider comic mad totally understand understood hope allow laugh at"],
+      ["Lesson 4", "L4", "create dictionary case combine pleasure notebook e-mail by accident lip whether define idiom butterfly interview hen salesman blind bat glasses bee dead lie farm trouble pain pray"],
+      ["Lesson 5", "L5", "foreign lollipop pink purple natural center boss married sounding have a sweet tooth rise success mark belong to grown-up leader simple repeat dentist knowledge fail deal dealt with club popcorn school fair fulfill pop"],
+      ["Lesson 6", "L6", "usual below appear cent cheat waste pound peach pear lemon tomato pin superglue paste jump rope marker paint total product sample honey centimeter height therefore shopkeeper come to think of it level sight"]
+    ]
+  },
+  {
+    grade: "國二", term: "上", publisher: "康軒",
+    title: "KS 第三冊", code: "KS B3",
+    lessons: [
+      ["Lesson 1", "L1", "season weather rainy wet sunny cloudy windy snowy spring summer autumn fall winter sky feel felt air common dark forget forgot umbrella afraid heavy shower report under the weather sea level danger fix build built far fisherman become became cry live safe protect nature above lead led to"],
+      ["Lesson 2", "L2", "head hair shoulder stomach arm hand knee leg toe neck catch caught a cold fever headache sore throat stay mask call speak spoke send sent message why because country serious health hurt ice cream so too bad treat as sick medicine coat healthy body clothes strong maybe try put on as for"],
+      ["Lesson 3", "L3", "chicken ant ugly duck goose frog cow map beginning middle quarter along clear pass forest dry something jar beak reach rock fly flew pick up back drop into good job be proud of back and forth finally top past finish anything shout joy pool when close"],
+      ["Lesson 4", "L4", "waiter waitress housewife mailman police officer secretary factory worker actor actress reporter singer writer music guitar drum future interesting camera important popular gift tell told funny plan star without dream teenager exciting fight fought one another money famous train sadly team up with have to stay up"],
+      ["Lesson 5", "L5", "temple supermarket restaurant bank church bakery bridge hotel department store metro station bookstore post office flower shop trip during vacation will would own local tour spend spent thousand each pay paid tomorrow almost decide cost fan leave for vendor quick stall careful boat sell sold low price remember cash wonderful"],
+      ["Lesson 6", "L6", "airplane bicycle truck scooter motorcycle taxi ship north west south east drive drove ride rode row excuse me sir turn left corner straight block across from bottom rule broken shake shook hands favorite pocket monster clerk convenient mistake parking space visitor cheap beef"]
+    ]
+  },
+  {
+    grade: "國一", term: "上", publisher: "康軒",
+    title: "KS 第一冊", code: "KS B1",
+    lessons: [
+      ["Lesson 1", "L1", "family husband wife uncle aunt cousin son daughter parent child young man handsome our PE really classroom same class again nice to meet you too news problem strict junior high school warm farmer cook nurse beautiful woman doctor senior high school pet cute nice"],
+      ["Lesson 2", "L2", "monkey fox sheep tiger zebra lion mouse bear movie theater Chinese animal sign rat ox rabbit dragon snake horse goat rooster smart energetic true no wonder people what about people person picture elephant or size different very their meter but only lifespan"],
+      ["Lesson 3", "L3", "living room bedroom bathroom dining room behind in front of between next to near please house quiet style idea let's get some tool smartphone step upload photo choose type theme wait expensive with question I see soft hard in fact around world kitchen beside ice inside blanket"],
+      ["Lesson 4", "L4", "listen voice stand up sit down take a photo make any noise can't talk noisy late early sidewalk song check out cross road watch out real all the time guess what traffic lights ground design user download warn oncoming crosswalk also the USA special lane way other"],
+      ["Lesson 5", "L5", "week Monday Tuesday Wednesday basketball Thursday Friday Saturday birthday party Sunday day weekend noon wake up look for hurry up by the way"],
+      ["Lesson 6", "L6", "gate sports field basketball court restroom library playground swing slide garden seesaw basket rest show around building gym work out after school large classmate put shelf outside worry wear still find feet hungry sandwich find one's feet meaning think a lot of thing however friendly"]
+    ]
+  },
+  {
+    grade: "小四", term: "下", publisher: "康軒",
+    title: "WW 第四冊", code: "WW B4",
+    lessons: [
+      ["Lesson 0",    "L0",   "day play pail rain gate wave"],
+      ["Lesson 1",    "L1",           "need lemonade coffee cola hot chocolate bubble tea soy milk tea Eve green peach these tree"],
+      ["Lesson 2",    "L2",           "how many apple banana grape guava orange papaya pineapple bite light night pie rice tie"],
+      ["Lesson 3",    "L3",           "day today Monday Tuesday Wednesday Thursday Friday Saturday Sunday boat goat hole mole snow yellow"],
+      ["Lesson 4",    "L4",           "subject favorite his her our their art Chinese English math music PE science social studies blue cute flute fruit glue Luke suit tube"],
+      ["補充",        " 補充", "firecrackers lion dance lucky money rice cake spring couplet tangerines"]
+    ]
+  },
+  {
+    grade: "小五", term: "上", publisher: "翰林",
+    title: "HWG 第五冊", code: "HWG B5",
+    lessons: [
+      ["Unit 0",   "U0",  "sixty seventy eighty ninety one hundred sleep under the table"],
+      ["Unit 1",   "U1",        "what day is today Sunday Monday Tuesday Wednesday Thursday Friday Saturday good idea have a good time"],
+      ["Unit 2",   "U2",        "art Chinese English math music PE science social studies sure follow me"],
+      ["Unit 3",   "U3",        "where are you go bank bookstore hospital library museum park post office supermarket say cheese excuse me"],
+      ["Unit 4",   "U4",        "how many elephant horse lion monkey tiger turtle zebra koala take care calm down"],
+      ["補充",     " 補充", "bell candy cane Christmas tree star stocking Santa Claus gift merry Christmas"]
+    ]
+  },
+  {
+    grade: "小四", term: "上", publisher: "翰林",
+    title: "HWG 第三冊", code: "HWG B3",
+    lessons: [
+      ["Unit 1", "U1", "sunny rainy cloudy windy hot warm cool cold weather I have an idea let's have fun dot duck dig tot tuck ten"],
+      ["Unit 2", "U2", "angry happy sad tired full hungry thirsty watch out are you OK gap gut gum cap cut cop"],
+      ["Unit 3", "U3", "apple banana orange watermelon hot dog hamburger sandwich"],
+      ["Unit 4", "U4", "juice milk tea water cake ice cream pizza rice want some which one this one that one me too zip Zack zit sip sack sock"]
+    ]
+  }
+];
+
+/* ---------- 工具 ---------- */
+const WM = "https://jinshuanyu.github.io/word-mapper/";
+function listUrl(title, words){
+  const json = JSON.stringify({ title: title, list: words });
+  const b64 = btoa(unescape(encodeURIComponent(json)));
+  return WM + "?list=" + encodeURIComponent(b64);
+}
+function esc(s){ const d=document.createElement("div"); d.textContent=s; return d.innerHTML; }
+const stageOf = g => GRADES.find(x => x.items.includes(g)).stage;
+const booksFor = (g, p) => BOOKS.filter(b => b.grade === g && (!p || b.publisher === p))
+                               .sort((a,b) => (a.term === "上" ? 0 : 1) - (b.term === "上" ? 0 : 1));
+
+const $ = id => document.getElementById(id);
+
+/* ---------- 第一層：年級 ---------- */
+const GRADE_NUM = { "小三":3, "小四":4, "小五":5, "小六":6, "國一":7, "國二":8, "國三":9 };
+const PUB_SHORT = { "康軒":"康", "翰林":"翰", "南一":"南", "何嘉仁":"何" };
+
+function renderGrades(){
+  $("stages").innerHTML = GRADES.map(st => `
+    <div class="stage">
+      <h2>${esc(st.stage)}</h2>
+      <div class="grades">
+        ${st.items.map(g => {
+          const pubs = PUBLISHERS[st.stage];
+          const any = booksFor(g).length > 0;
+          return `<div class="grade ${any ? "" : "none"}">
+                    <span class="g">${GRADE_NUM[g]}<small>年級</small></span>
+                    <div class="pubs">
+                      ${pubs.map(p => {
+                        const ok = booksFor(g, p).length > 0;
+                        return `<button class="pub" type="button"
+                                  data-grade="${esc(g)}" data-pub="${esc(p)}" ${ok ? "" : "disabled"}>${esc(PUB_SHORT[p] || p[0])}</button>`;
+                      }).join("")}
+                    </div>
+                  </div>`;
+        }).join("")}
+      </div>
+    </div>`).join("");
+  $("stages").querySelectorAll(".pub:not(:disabled)").forEach(btn =>
+    btn.onclick = () => go(btn.dataset.grade, btn.dataset.pub));
+}
+
+/* ---------- 第二層：版本 → 冊 → 課 ---------- */
+function renderGrade(grade, pub){
+  const pubs = PUBLISHERS[stageOf(grade)];
+  const has = p => booksFor(grade, p).length > 0;
+  if (!pub || !has(pub)) pub = pubs.find(has);
+
+  $("crumb").innerHTML = GRADE_NUM[grade] + " 年級 各課單字有聲字表<small>" + esc(grade) + "｜" + esc(YEAR) + "</small>";
+  $("tabs").innerHTML = pubs.map(p =>
+    `<button class="tab" type="button" role="tab" data-pub="${esc(p)}"
+       aria-selected="${p === pub}" ${has(p) ? "" : "disabled"}>${esc(PUB_SHORT[p] || p[0])}</button>`
+  ).join("");
+  $("tabs").querySelectorAll(".tab:not(:disabled)").forEach(t =>
+    t.onclick = () => go(grade, t.dataset.pub));
+
+  $("books").innerHTML = booksFor(grade, pub).map(b => {
+    const cards = b.lessons.map(([name, suffix, words]) => {
+      const list = words.trim().split(/\s+/);
+      return `<a class="lesson" href="${listUrl(b.code + suffix, list)}">
+          <div class="lesson-top"><span class="lesson-name">${esc(name)}</span><span class="lesson-count">${list.length} 字</span></div>
+          <div class="words">${esc(list.join(", "))}</div>
+          <span class="open">開啟字表 →</span>
+        </a>`;
+    }).join("");
+    return `<section class="book">
+        <div class="book-head"><h3>${esc(b.title)}（${esc(b.grade + b.term)}）</h3><span class="meta">${esc(b.code)}</span></div>
+        <div class="lessons">${cards}</div>
+      </section>`;
+  }).join("") || `<div class="empty">這個年級還在整理中</div>`;
+}
+
+/* ---------- 網址記住位置（可直接分享某年級某版本） ---------- */
+function go(grade, pub){
+  location.hash = grade ? encodeURIComponent(grade) + (pub ? "/" + encodeURIComponent(pub) : "") : "";
+}
+function route(){
+  const [g, p] = location.hash.slice(1).split("/").map(decodeURIComponent);
+  const valid = g && GRADES.some(x => x.items.includes(g)) && booksFor(g).length;
+  $("viewGrades").hidden = !!valid;
+  $("viewGrade").hidden = !valid;
+  if (valid) renderGrade(g, p); else renderGrades();
+  window.scrollTo(0, 0);
+}
+$("backBtn").onclick = () => go("");
+window.addEventListener("hashchange", route);
+route();
+</script>
+</body>
+</html>
