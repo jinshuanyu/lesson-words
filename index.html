@@ -7,6 +7,7 @@
 <meta name="description" content="國小三年級到國中三年級英文各課單字有聲字表，一鍵開啟 Word Mapper 看每個字的拼字與聲音對照。" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Noto+Sans:wght@400;700;800&display=swap" rel="stylesheet" />
 <style>
   :root{
@@ -45,7 +46,8 @@
   .stage{margin-bottom:1.5rem}
   .stage h2{display:flex;align-items:center;gap:.6rem;font-size:1rem;font-weight:900;color:var(--c-primary-deep);margin:0 0 .7rem;letter-spacing:.06em}
   .stage h2::after{content:"";flex:1;height:1px;background:var(--c-border)}
-  .grades{display:grid;grid-template-columns:repeat(4,1fr);gap:.8rem}
+  .grades{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.8rem}
+  .grade{min-width:0}
   .grade{border:2px solid var(--c-border);background:#fff;border-radius:16px;padding:.9rem .5rem .8rem;text-align:center;color:inherit}
   .grade .g{display:block;font-family:"Noto Sans",sans-serif;font-size:2rem;font-weight:800;line-height:1.1;color:#0f172a}
   .grade .g small{font-family:"Noto Sans TC",sans-serif;font-size:.8rem;font-weight:700;color:var(--c-muted);margin-left:.15rem}
@@ -83,9 +85,19 @@
 
   .note{margin-top:1.8rem;padding:.9rem 1.1rem;background:var(--c-primary-tint);border-radius:12px;font-size:.88rem;color:#475569;border:1px solid var(--c-border)}
   .note p{margin:.2rem 0}
-  footer{text-align:center;color:var(--c-muted);font-size:.85rem;margin-top:1.4rem}
-  footer a{color:var(--c-primary-deep);font-weight:700;text-decoration:none}
-  footer a:hover{text-decoration:underline}
+  /* ---- footer：與 Word Mapper 相同結構（聯絡 / 贊助 / 工具互連 / 版權） ---- */
+  footer.credits{margin-top:2rem;padding-top:1.2rem;border-top:2px solid var(--c-border);text-align:center;font-size:.875rem;color:#475569;line-height:1.6}
+  .credits .contact a{color:#64748b;margin:0 .5rem;text-decoration:none;transition:color .2s}
+  .credits .contact a:hover{color:var(--c-primary-deep)}
+  .support-cta{margin:1rem 0}
+  .support-btn{display:inline-block;background:linear-gradient(to right,#facc15,#fb923c);color:#fff;font-weight:600;font-size:1rem;padding:.5rem 1.25rem;border-radius:9999px;box-shadow:0 4px 6px -1px rgba(0,0,0,.1),0 2px 4px -1px rgba(0,0,0,.06);text-decoration:none;transition:transform .2s ease}
+  .support-btn:hover{transform:scale(1.05)}
+  .support-btn:focus{outline:3px solid rgba(251,191,36,.45);outline-offset:2px}
+  .tools-title{margin:10px 0 6px;font-size:.95rem;color:#888}
+  .tools{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin:0 auto 12px}
+  .tools a{display:inline-block;padding:6px 14px;background:var(--c-primary-soft);color:var(--c-primary-deep);text-decoration:none;border-radius:20px;font-size:1rem;font-weight:500}
+  .tools a:hover{background:var(--c-primary);color:#fff}
+  @media (max-width:640px){.support-btn{font-size:.9rem;font-weight:500;padding:.45rem 1rem}}
   [hidden]{display:none!important}
 
   @media (max-width:640px){
@@ -135,7 +147,26 @@
     <div class="note">
       <p>💡 字表可以生成 PDF，也可以分享給其他人。</p>
     </div>
-    <footer><a href="https://jinshuanyu.github.io/word-mapper/">Word Mapper</a>｜英文拼字 × 聲音對照</footer>
+    <footer class="credits">
+      <div class="contact">
+        <a href="mailto:mamahowma@gmail.com" aria-label="Email mamahowma"><i class="fa-solid fa-envelope fa-xl fa-fw" aria-hidden="true"></i></a>
+        <a href="https://www.facebook.com/mamahowma" target="_blank" rel="noopener noreferrer" aria-label="mamahowma Facebook Page"><i class="fa-brands fa-facebook fa-xl fa-fw" aria-hidden="true"></i></a>
+        <a href="https://portaly.cc/mamahowma/support" target="_blank" rel="noopener noreferrer" aria-label="Support mamahowma"><i class="fa-solid fa-mug-hot fa-xl fa-fw" aria-hidden="true"></i></a>
+      </div>
+      <div class="support-cta">
+        <a href="https://portaly.cc/mamahowma/support" target="_blank" rel="noopener noreferrer" class="support-btn">喜歡這個免費工具嗎？☕ 請杯咖啡鼓勵我</a>
+      </div>
+      <div class="tools-title">🔡 More English Tools:</div>
+      <div class="tools">
+        <a href="https://jinshuanyu.github.io/word-mapper/">Word Mapper 拼字聲音對照</a>
+        <a href="https://jinshuanyu.github.io/Dolch-List-by-spelling-patterns/">Dolch 高頻詞拼讀</a>
+        <a href="https://jinshuanyu.github.io/vowel-detective/">母音偵探</a>
+        <a href="https://jinshuanyu.github.io/grow-a-sentence/">句子擴寫</a>
+        <a href="https://jinshuanyu.github.io/englishplaylistsforkids/">英語影片片單</a>
+        <a href="https://jinshuanyu.github.io/ipa-guide/">IPA 音標指南</a>
+      </div>
+      © 2025 Christina Yu. All rights reserved.
+    </footer>
   </div>
 </div>
 
