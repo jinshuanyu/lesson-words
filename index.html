@@ -58,6 +58,24 @@
   .grade.none{border-style:dashed;background:#faf9fc}
   .grade.none .g{color:#b4afc4}
 
+  /* ---- 國小：出版社卡（版本 → 教材 → 冊） ---- */
+  .pubcards{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:.8rem}
+  .pubcard{border:2px solid var(--c-border);background:#fff;border-radius:16px;padding:1rem .9rem .9rem;text-align:center;cursor:pointer;transition:all .15s;font-family:inherit;font-size:inherit}
+  .pubcard:hover{border-color:var(--c-primary);box-shadow:0 8px 18px rgba(136,126,166,.18);transform:translateY(-2px)}
+  .pubcard .p{display:block;font-size:2rem;font-weight:900;line-height:1.1;color:#0f172a}
+  .pubcard .p small{display:block;font-size:.78rem;font-weight:700;color:var(--c-muted);margin-top:.15rem}
+  .series{display:flex;flex-wrap:wrap;justify-content:center;gap:.35rem;margin-top:.7rem}
+  .series span{font-family:"Noto Sans",sans-serif;font-size:.8rem;font-weight:700;border-radius:999px;padding:.15rem .7rem;background:var(--c-primary-soft);color:var(--c-primary-deep)}
+  .series span.todo{background:#fbfafd;border:1.5px dashed #cfcadb;color:#b4afc4}
+  .tip{font-size:.85rem;color:var(--c-muted);margin:-.4rem 0 .8rem}
+  .vols{display:flex;flex-wrap:wrap;gap:.4rem;margin:0 0 1.4rem}
+  .vol{display:inline-flex;align-items:baseline;gap:.1rem;min-width:3.2rem;justify-content:center;border:2px solid var(--c-border);background:#fff;border-radius:12px;padding:.35rem .6rem;font-family:"Noto Sans",sans-serif;font-weight:800;font-size:1.05rem;color:#334155;cursor:pointer;transition:all .15s}
+  .vol small{font-family:"Noto Sans TC",sans-serif;font-size:.72rem;font-weight:700}
+  .vol:hover:not(:disabled){border-color:var(--c-primary);color:var(--c-primary-deep)}
+  .vol[aria-selected="true"]{background:var(--c-primary);border-color:var(--c-primary);color:#fff;box-shadow:0 4px 10px rgba(136,126,166,.3)}
+  .vol:disabled{opacity:.4;cursor:default;border-style:dashed}
+  .pub.wide{width:auto;min-width:2.1rem;padding:0 .45rem;border-radius:999px;white-space:nowrap;font-size:.8rem}
+
   /* ---- 版本 ---- */
   .crumb{font-size:1.5rem;font-weight:900;margin:0 0 .2rem;color:#0f172a}
   .crumb small{display:block;font-size:.85rem;font-weight:500;color:var(--c-muted);letter-spacing:.05em}
@@ -109,6 +127,9 @@
     .hero h1 small{font-size:.95rem}
     .step{padding:.3rem .7rem;font-size:.85rem}
     .grades{grid-template-columns:repeat(2,1fr)}
+    .pubcards{grid-template-columns:repeat(3,1fr)}
+    .pubcard .p{font-size:1.7rem}
+    .pubcard{padding:.8rem .4rem .7rem}
     .grade .g{font-size:1.8rem}
     .lessons{grid-template-columns:1fr}
     .crumb{font-size:1.3rem}
@@ -123,10 +144,10 @@
     <header class="hero">
       <a class="hero-back" href="https://jinshuanyu.github.io/word-mapper/">← Word Mapper</a>
       <h1>國中小英文<br>各課單字有聲字表<small>英文拼字 × 聲音對照</small></h1>
-      <p class="lead">3 ~ 9 年級，各版本各課有聲字表</p>
+      <p class="lead">國小依版本、冊別找；國中依年級找</p>
       <div class="steps">
-        <span class="step"><b>1</b>年級</span><span class="step-arrow">›</span>
-        <span class="step"><b>2</b>版本</span><span class="step-arrow">›</span>
+        <span class="step"><b>1</b>版本</span><span class="step-arrow">›</span>
+        <span class="step"><b>2</b>冊別</span><span class="step-arrow">›</span>
         <span class="step"><b>3</b>課別</span>
       </div>
     </header>
@@ -136,7 +157,7 @@
   <!-- 第二層：版本 → 冊 → 課 -->
   <section id="viewGrade" hidden>
     <div class="inner">
-      <button class="back" type="button" id="backBtn">← 選其他年級</button>
+      <button class="back" type="button" id="backBtn">← 回首頁</button>
       <p class="crumb" id="crumb"></p>
       <div class="tabs" id="tabs" role="tablist"></div>
       <div id="books"></div>
@@ -188,9 +209,17 @@ const GRADES = [
   { stage: "國中", items: ["國一", "國二", "國三"] }
 ];
 const PUBLISHERS = {
-  "國小": ["康軒", "翰林", "南一", "何嘉仁"],
+  "國小": ["康軒", "翰林", "何嘉仁"],
   "國中": ["康軒", "翰林", "南一"]
 };
+/* 國小每家出版社的教材（代碼）：審定本 + 低年級教材。BOOKS 裡還沒有的會顯示「尚未收錄」 */
+const SERIES = {
+  "康軒":   [{ code: "WW" }, { code: "SS" }],
+  "翰林":   [{ code: "HWG" }, { code: "HR" }],
+  "何嘉仁": [{ code: "SF" }, { code: "FW" }]
+};
+const PUB_LABEL = { "國小": { "康軒":"康", "翰林":"翰", "何嘉仁":"何" },
+                    "國中": { "康軒":"康", "翰林":"翰（佳）", "南一":"南" } };
 
 const BOOKS = [
   {
@@ -428,18 +457,47 @@ function listUrl(title, words){
   return WM + "?list=" + encodeURIComponent(b64);
 }
 function esc(s){ const d=document.createElement("div"); d.textContent=s; return d.innerHTML; }
+const $ = id => document.getElementById(id);
 const stageOf = g => GRADES.find(x => x.items.includes(g)).stage;
+const seriesOf = b => b.code.split(" ")[0];
+const volOf = b => parseInt((b.code.match(/B(\d+)/) || [0, 0])[1], 10);
+const CN = ["", "一","二","三","四","五","六","七","八","九","十","十一","十二"];
 const booksFor = (g, p) => BOOKS.filter(b => b.grade === g && (!p || b.publisher === p))
                                .sort((a,b) => (a.term === "上" ? 0 : 1) - (b.term === "上" ? 0 : 1));
-
-const $ = id => document.getElementById(id);
-
-/* ---------- 第一層：年級 ---------- */
+const booksOfSeries = (pub, code) => BOOKS.filter(b => b.publisher === pub && seriesOf(b) === code)
+                                          .sort((a, b) => volOf(a) - volOf(b));
 const GRADE_NUM = { "小三":3, "小四":4, "小五":5, "小六":6, "國一":7, "國二":8, "國三":9 };
-const PUB_SHORT = { "康軒":"康", "翰林":"翰", "南一":"南", "何嘉仁":"何" };
 
-function renderGrades(){
-  $("stages").innerHTML = GRADES.map(st => `
+function lessonCards(b){
+  return b.lessons.map(([name, suffix, words]) => {
+    const list = words.includes(",") ? words.split(",").map(s => s.trim()).filter(Boolean) : words.trim().split(/\s+/);
+    return `<a class="lesson" href="${listUrl(b.code + suffix, list)}">
+        <div class="lesson-top"><span class="lesson-name">${esc(name)}</span><span class="lesson-count">${list.length} 字</span></div>
+        <div class="words">${esc(list.join(", "))}</div>
+        <span class="open">開啟字表 →</span>
+      </a>`;
+  }).join("");
+}
+
+/* ---------- 首頁：國小＝出版社卡，國中＝年級卡 ---------- */
+function renderHome(){
+  const elem = `
+    <div class="stage">
+      <h2>國小</h2>
+      <div class="pubcards">
+        ${PUBLISHERS["國小"].map(p => `
+          <button class="pubcard" type="button" data-pub="${esc(p)}">
+            <span class="p">${esc(PUB_LABEL["國小"][p])}<small>版本</small></span>
+            <div class="series">
+              ${SERIES[p].map(s => {
+                const bs = booksOfSeries(p, s.code);
+                return `<span class="${bs.length ? "" : "todo"}">${esc(s.code)}</span>`;
+              }).join("")}
+            </div>
+          </button>`).join("")}
+      </div>
+    </div>`;
+  const jr = GRADES.filter(st => st.stage === "國中").map(st => `
     <div class="stage">
       <h2>${esc(st.stage)}</h2>
       <div class="grades">
@@ -451,58 +509,74 @@ function renderGrades(){
                     <div class="pubs">
                       ${pubs.map(p => {
                         const ok = booksFor(g, p).length > 0;
-                        return `<button class="pub" type="button"
-                                  data-grade="${esc(g)}" data-pub="${esc(p)}" ${ok ? "" : "disabled"}>${esc(PUB_SHORT[p] || p[0])}</button>`;
+                        return `<button class="pub wide" type="button"
+                                  data-grade="${esc(g)}" data-pub="${esc(p)}" ${ok ? "" : "disabled"}>${esc(PUB_LABEL[st.stage][p])}</button>`;
                       }).join("")}
                     </div>
                   </div>`;
         }).join("")}
       </div>
     </div>`).join("");
-  $("stages").querySelectorAll(".pub:not(:disabled)").forEach(btn =>
-    btn.onclick = () => go(btn.dataset.grade, btn.dataset.pub));
+  $("stages").innerHTML = elem + jr;
+  $("stages").querySelectorAll(".pubcard").forEach(c => c.onclick = () => goPub(c.dataset.pub));
+  $("stages").querySelectorAll(".pub:not(:disabled)").forEach(btn => btn.onclick = () => go(btn.dataset.grade, btn.dataset.pub));
 }
 
-/* ---------- 第二層：版本 → 冊 → 課 ---------- */
+/* ---------- 國小第二層：出版社 → 教材分頁 → 冊 ---------- */
+function renderPub(pub, code, vol){
+  const ser = SERIES[pub];
+  const has = s => booksOfSeries(pub, s.code).length > 0;
+  if (!code || !ser.some(s => s.code === code && has(s))) code = (ser.find(has) || ser[0]).code;
+  $("crumb").innerHTML = esc(PUB_LABEL["國小"][pub]) + " 版 各課單字有聲字表<small>國小｜" + esc(YEAR) + "</small>";
+  $("tabs").innerHTML = ser.map(s =>
+    `<button class="tab" type="button" role="tab" data-code="${esc(s.code)}" aria-selected="${s.code === code}" ${has(s) ? "" : "disabled"}>${esc(s.code)}</button>`
+  ).join("");
+  $("tabs").querySelectorAll(".tab:not(:disabled)").forEach(t => t.onclick = () => goPub(pub, t.dataset.code));
+  const books = booksOfSeries(pub, code);
+  const vols = books.map(volOf);
+  if (!vols.includes(vol)) vol = vols[0];
+  const maxVol = Math.max(10, ...vols);   // 審定本 8 冊 + 非審定 9、10 冊
+  const volBtns = Array.from({ length: maxVol }, (_, i) => i + 1).map(v =>
+    `<button class="vol" type="button" data-vol="${v}" aria-selected="${v === vol}" ${vols.includes(v) ? "" : "disabled"}>${v}<small>冊</small></button>`
+  ).join("");
+  const b = books.find(x => volOf(x) === vol);
+  $("books").innerHTML = `<p class="tip">各校開始的年級不同，請看課本封面的冊別。</p>
+    <div class="vols">${volBtns}</div>` + (b ? `
+    <section class="book">
+      <div class="book-head"><h3>第${CN[volOf(b)]}冊</h3><span class="meta">${esc(b.code)}</span></div>
+      <div class="lessons">${lessonCards(b)}</div>
+    </section>` : `<div class="empty">這套教材還沒收錄</div>`);
+  $("books").querySelectorAll(".vol:not(:disabled)").forEach(x => x.onclick = () => goPub(pub, code, +x.dataset.vol));
+}
+
+/* ---------- 國中第二層：年級 → 版本分頁（不變） ---------- */
 function renderGrade(grade, pub){
   const pubs = PUBLISHERS[stageOf(grade)];
   const has = p => booksFor(grade, p).length > 0;
   if (!pub || !has(pub)) pub = pubs.find(has);
-
   $("crumb").innerHTML = GRADE_NUM[grade] + " 年級 各課單字有聲字表<small>" + esc(grade) + "｜" + esc(YEAR) + "</small>";
   $("tabs").innerHTML = pubs.map(p =>
-    `<button class="tab" type="button" role="tab" data-pub="${esc(p)}"
-       aria-selected="${p === pub}" ${has(p) ? "" : "disabled"}>${esc(PUB_SHORT[p] || p[0])}</button>`
+    `<button class="tab" type="button" role="tab" data-pub="${esc(p)}" aria-selected="${p === pub}" ${has(p) ? "" : "disabled"}>${esc(PUB_LABEL["國中"][p])}</button>`
   ).join("");
-  $("tabs").querySelectorAll(".tab:not(:disabled)").forEach(t =>
-    t.onclick = () => go(grade, t.dataset.pub));
-
-  $("books").innerHTML = booksFor(grade, pub).map(b => {
-    const cards = b.lessons.map(([name, suffix, words]) => {
-      const list = words.includes(",") ? words.split(",").map(s => s.trim()).filter(Boolean) : words.trim().split(/\s+/);
-      return `<a class="lesson" href="${listUrl(b.code + suffix, list)}">
-          <div class="lesson-top"><span class="lesson-name">${esc(name)}</span><span class="lesson-count">${list.length} 字</span></div>
-          <div class="words">${esc(list.join(", "))}</div>
-          <span class="open">開啟字表 →</span>
-        </a>`;
-    }).join("");
-    return `<section class="book">
-        <div class="book-head"><h3>${esc(b.title)}（${esc(b.grade + b.term)}）</h3><span class="meta">${esc(b.code)}</span></div>
-        <div class="lessons">${cards}</div>
-      </section>`;
-  }).join("") || `<div class="empty">這個年級還在整理中</div>`;
+  $("tabs").querySelectorAll(".tab:not(:disabled)").forEach(t => t.onclick = () => go(grade, t.dataset.pub));
+  $("books").innerHTML = booksFor(grade, pub).map(b => `
+    <section class="book">
+      <div class="book-head"><h3>${esc(b.title)}（${esc(b.grade + b.term)}）</h3><span class="meta">${esc(b.code)}</span></div>
+      <div class="lessons">${lessonCards(b)}</div>
+    </section>`).join("") || `<div class="empty">這個年級還在整理中</div>`;
 }
 
-/* ---------- 網址記住位置（可直接分享某年級某版本） ---------- */
-function go(grade, pub){
-  location.hash = grade ? encodeURIComponent(grade) + (pub ? "/" + encodeURIComponent(pub) : "") : "";
-}
+/* ---------- 網址記住位置 ---------- */
+function go(grade, pub){ location.hash = grade ? encodeURIComponent(grade) + (pub ? "/" + encodeURIComponent(pub) : "") : ""; }
+function goPub(pub, code, vol){ location.hash = "國小/" + encodeURIComponent(pub) + (code ? "/" + encodeURIComponent(code) + (vol ? "/" + vol : "") : ""); }
 function route(){
-  const [g, p] = location.hash.slice(1).split("/").map(decodeURIComponent);
-  const valid = g && GRADES.some(x => x.items.includes(g)) && booksFor(g).length;
-  $("viewGrades").hidden = !!valid;
-  $("viewGrade").hidden = !valid;
-  if (valid) renderGrade(g, p); else renderGrades();
+  const parts = location.hash.slice(1).split("/").map(decodeURIComponent);
+  let view = null;
+  if (parts[0] === "國小" && PUBLISHERS["國小"].includes(parts[1])) view = () => renderPub(parts[1], parts[2], parseInt(parts[3], 10));
+  else if (GRADES.some(x => x.items.includes(parts[0])) && booksFor(parts[0]).length) view = () => renderGrade(parts[0], parts[1]);
+  $("viewGrades").hidden = !!view;
+  $("viewGrade").hidden = !view;
+  if (view) view(); else renderHome();
   window.scrollTo(0, 0);
 }
 $("backBtn").onclick = () => go("");
