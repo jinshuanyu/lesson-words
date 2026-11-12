@@ -105,6 +105,8 @@
   .lesson-foot{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap}
   .song{display:inline-flex;align-items:center;gap:.25rem;font-size:.82rem;font-weight:700;color:var(--c-primary-deep);background:var(--c-primary-soft);border-radius:10px;padding:.3rem .7rem;transition:background .15s,color .15s}
   .song:hover{background:#e3dfee}
+  .pubv{display:inline-flex;align-items:center;gap:.25rem;font-size:.82rem;font-weight:700;color:#9a3412;background:#ffedd5;border-radius:10px;padding:.3rem .7rem;transition:background .15s}
+  .pubv:hover{background:#fed7aa}
   .topic-head{display:flex;align-items:center;gap:.7rem;margin:0 0 .8rem}
   .topic-head .e{display:grid;place-items:center;flex:0 0 auto;width:2.8rem;height:2.8rem;border-radius:14px;background:var(--c-primary);color:#fff;font-size:1.5rem}
   .topic-head h3{font-size:1.4rem;font-weight:900;margin:0;line-height:1.25;color:#0f172a}
@@ -570,20 +572,32 @@ function lessonCards(b){
     const list = words.includes(",") ? words.split(",").map(s => s.trim()).filter(Boolean) : words.trim().split(/\s+/);
     const song = topicsOf(b.code, name).map(tid =>
       `<span class="song" data-topic="${esc(tid)}" data-code="${esc(b.code)}" data-lesson="${esc(name)}">🎵 ${esc(TOPICS[tid].name)}</span>`).join("");
+    const pubv = (PUB_VIDEO[b.code + "|" + name] || []).map(([id, label]) =>
+      `<span class="pubv" data-yt="${esc(id)}" title="在 YouTube 開啟">📺 ${esc(label)}</span>`).join("");
     return `<a class="lesson" href="${listUrl(b.code + suffix, list)}">
         <div class="lesson-top"><span class="lesson-name">${esc(name)}</span><span class="lesson-count">${list.length} 字</span></div>
         <div class="words">${esc(list.join(", "))}</div>
-        <div class="lesson-foot"><span class="open">開啟字表 →</span>${song}</div>
+        <div class="lesson-foot"><span class="open">開啟字表 →</span>${song}${pubv}</div>
       </a>`;
   }).join("");
 }
-/* 🎵 按鈕在 <a> 裡面：攔下點擊，改去影片頁 */
+/* 🎵 / 📺 按鈕在 <a> 裡面：攔下點擊，改去影片頁或 YouTube */
 document.addEventListener("click", e => {
-  const s = e.target.closest(".song");
-  if (!s) return;
+  const s = e.target.closest(".song"), p = e.target.closest(".pubv");
+  if (!s && !p) return;
   e.preventDefault(); e.stopPropagation();
-  location.hash = "主題/" + encodeURIComponent(s.dataset.topic) + "/" + encodeURIComponent(s.dataset.code) + "/" + encodeURIComponent(s.dataset.lesson);
+  if (p) window.open("https://www.youtube.com/watch?v=" + p.dataset.yt, "_blank", "noopener");
+  else location.hash = "主題/" + encodeURIComponent(s.dataset.topic) + "/" + encodeURIComponent(s.dataset.code) + "/" + encodeURIComponent(s.dataset.lesson);
 });
+
+/* 出版社官方頻道的該課影片（何嘉仁 HESS Super Fun 影音專區、康軒 KNSH Boka）："冊代碼|課名" → [[YouTube id, 按鈕文字], ...] */
+const PUB_VIDEO = {
+  "SF B1|Lesson 1":[["4Lfx6JIASz0","課本影片"]], "SF B1|Lesson 2":[["vHO69t8lGts","課本影片"]], "SF B1|Lesson 3":[["9X-SShGVH-I","課本影片"]], "SF B1|Lesson 4":[["6yt8_lLvwZk","課本影片"]],
+  "SF B3|Lesson 1":[["pX4iq2mqOI0","課本影片"]], "SF B3|Lesson 2":[["2hQ97PYyh1c","課本影片"]], "SF B3|Lesson 3":[["wsAnSOc4aeo","課本影片"]], "SF B3|Lesson 4":[["1_8X0Eh2yKM","課本影片"]], "SF B3|補充":[["BL0jXKS0XhE","課本歌謠"]],
+  "SF B5|Lesson 1":[["3PP4qn6MP_0","課本影片"]], "SF B5|Lesson 2":[["AvSxg7VUepk","課本影片"]], "SF B5|Lesson 3":[["3qneXf79DpU","課本影片"]], "SF B5|Lesson 4":[["AEqcSGLn2B8","課本影片"]],
+  "SF B7|Lesson 1":[["6pkRX37o_s0","課本影片"]], "SF B7|Lesson 2":[["JEmSZcCWrG8","課本影片"]], "SF B7|Lesson 3":[["LTo4L4Yv6W4","課本影片"]], "SF B7|Lesson 4":[["BgzPtUISBYw","課本影片"]],
+  "WW B1|Lesson 3":[["yLipvMpU_4Y","課本歌曲"]], "WW B1|Lesson 4":[["pFCC6CVNjLI","課本歌曲"]]
+};
 
 /* ============================================================
    每課配的兒歌／繪本影片。
