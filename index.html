@@ -586,12 +586,19 @@ document.addEventListener("click", e => {
   const s = e.target.closest(".song"), p = e.target.closest(".pubv");
   if (!s && !p) return;
   e.preventDefault(); e.stopPropagation();
-  if (p) window.open("https://www.youtube.com/watch?v=" + p.dataset.yt, "_blank", "noopener");
+  if (p) window.open(p.dataset.yt.startsWith("PL") ? "https://www.youtube.com/playlist?list=" + p.dataset.yt : "https://www.youtube.com/watch?v=" + p.dataset.yt, "_blank", "noopener");
   else location.hash = "主題/" + encodeURIComponent(s.dataset.topic) + "/" + encodeURIComponent(s.dataset.code) + "/" + encodeURIComponent(s.dataset.lesson);
 });
 
-/* 出版社官方頻道的該課影片（何嘉仁 HESS Super Fun 影音專區、康軒 KNSH Boka）："冊代碼|課名" → [[YouTube id, 按鈕文字], ...] */
+/* 出版社官方頻道的該課影片（何嘉仁 HESS Super Fun 影音專區、康軒 KNSH Boka、康軒國中英語教學補充 @knshjuniorenglish 的每課播放清單）
+   "冊代碼|課名" → [[YouTube 影片 id 或 PL 開頭的播放清單 id, 按鈕文字], ...] */
 const PUB_VIDEO = {
+  "KS B1|Lesson 0":[["PLkNclwBqASleBi4h6utWneoKh10pIs9z6","教學補充"]], "KS B1|Lesson 1":[["PLkNclwBqASldmRagSVZ5w3A263TdZjIUI","教學補充"]], "KS B1|Lesson 2":[["PLkNclwBqASleaho3axkTTvItKXM_dxEmd","教學補充"]],
+  "KS B1|Lesson 3":[["PLkNclwBqASlfgu23IEhuvmcKshddiy8Mh","教學補充"]], "KS B1|Lesson 4":[["PLkNclwBqASldgEqOmtCIGLUe6SMdsKshj","教學補充"]], "KS B1|Lesson 5":[["PLkNclwBqASldr_hCzs1vqj230_ZkOHJi-","教學補充"]], "KS B1|Lesson 6":[["PLkNclwBqASlcmwJ6M4PW0xYM0Plq2Aajl","教學補充"]],
+  "KS B3|Lesson 1":[["PLkNclwBqASlfSI1VzbgoDmZoDvYfoZiNK","教學補充"]], "KS B3|Lesson 2":[["PLkNclwBqASlfOZlu-QLALVjmhPTEHWDTe","教學補充"]], "KS B3|Lesson 3":[["PLkNclwBqASlfjvO73hScfFTO6iCkbnkMb","教學補充"]],
+  "KS B3|Lesson 4":[["PLkNclwBqASld3xAgH6J99_iLJ8xD9acKI","教學補充"]], "KS B3|Lesson 5":[["PLkNclwBqASlcdd9fkuzMBMEq5HWnrxp1K","教學補充"]], "KS B3|Lesson 6":[["PLkNclwBqASldAU1OicwGfCMwcubR7S-8u","教學補充"]],
+  "KS B5|Lesson 1":[["PLkNclwBqASlew90bjoLAlYvcqXZRYWLiU","教學補充"]], "KS B5|Lesson 2":[["PLkNclwBqASlfZbVBC3tNq_rpRh3_P0gyY","教學補充"]], "KS B5|Lesson 3":[["PLkNclwBqASlfGAZbJZ_IMUrHp8k-Q7GML","教學補充"]],
+  "KS B5|Lesson 4":[["PLkNclwBqASlfz5tYlEYT25A-lz33qmbaw","教學補充"]], "KS B5|Lesson 5":[["PLkNclwBqASlepzC6P6TI_RquVVhjYQj9z","教學補充"]], "KS B5|Lesson 6":[["PLkNclwBqASldR53J6sH_pMWq6TYf9PYFq","教學補充"]],
   "SF B1|Lesson 1":[["4Lfx6JIASz0","課本影片"]], "SF B1|Lesson 2":[["vHO69t8lGts","課本影片"]], "SF B1|Lesson 3":[["9X-SShGVH-I","課本影片"]], "SF B1|Lesson 4":[["6yt8_lLvwZk","課本影片"]],
   "SF B3|Lesson 1":[["pX4iq2mqOI0","課本影片"]], "SF B3|Lesson 2":[["2hQ97PYyh1c","課本影片"]], "SF B3|Lesson 3":[["wsAnSOc4aeo","課本影片"]], "SF B3|Lesson 4":[["1_8X0Eh2yKM","課本影片"]], "SF B3|補充":[["BL0jXKS0XhE","課本歌謠"]],
   "SF B5|Lesson 1":[["3PP4qn6MP_0","課本影片"]], "SF B5|Lesson 2":[["AvSxg7VUepk","課本影片"]], "SF B5|Lesson 3":[["3qneXf79DpU","課本影片"]], "SF B5|Lesson 4":[["AEqcSGLn2B8","課本影片"]],
