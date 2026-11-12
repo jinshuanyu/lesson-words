@@ -568,8 +568,8 @@ const GRADE_NUM = { "小三":3, "小四":4, "小五":5, "小六":6, "國一":7, 
 function lessonCards(b){
   return b.lessons.map(([name, suffix, words]) => {
     const list = words.includes(",") ? words.split(",").map(s => s.trim()).filter(Boolean) : words.trim().split(/\s+/);
-    const tid = TOPIC_OF[b.code + "|" + name];
-    const song = tid ? `<span class="song" data-topic="${esc(tid)}" data-code="${esc(b.code)}" data-lesson="${esc(name)}">🎵 兒歌繪本</span>` : "";
+    const song = topicsOf(b.code, name).map(tid =>
+      `<span class="song" data-topic="${esc(tid)}" data-code="${esc(b.code)}" data-lesson="${esc(name)}">🎵 ${esc(TOPICS[tid].name)}</span>`).join("");
     return `<a class="lesson" href="${listUrl(b.code + suffix, list)}">
         <div class="lesson-top"><span class="lesson-name">${esc(name)}</span><span class="lesson-count">${list.length} 字</span></div>
         <div class="words">${esc(list.join(", "))}</div>
@@ -589,9 +589,14 @@ document.addEventListener("click", e => {
    每課配的兒歌／繪本影片。
    TOPICS：一個主題一組影片（id、e、name、en、videos；videos 每項 [YouTube id, 片名, 頻道, 標籤]；
            已有 YouTube 播放清單的用 yt 填清單 id，videos 留空）。
-   TOPIC_OF："冊代碼|課名" → 主題 id。沒列到的課不顯示 🎵。
+   TOPIC_OF："冊代碼|課名" → 主題 id（一課有兩個主題就寫陣列）。沒列到的課不顯示 🎵。
    ============================================================ */
 const TOPICS = {
+  abc: { e:"🔡", name:"字母", en:"ABC", videos:[
+    ["kDdg2M1_EuE","The Alphabet Is So Much Fun","Super Simple Songs","兒歌"],["vD98OvvDNEs","The Alphabet Song","Super Simple Songs","兒歌"],
+    ["bNg-ZQligKQ","ABC Phonics Song","The Singing Walrus","兒歌"],["ChqnN3cKzXQ","ABC Phonics Chant","Tora the Teacher","兒歌"],
+    ["OExLhIxG2_I","Dr. Seuss's ABC","vancemo","繪本"],["quohQa3lz40","Chicka Chicka Boom Boom","Buddy Son Storytime","繪本"],
+    ["IEyg-xpZN7o","Animalphabet","Brightly Storytime","繪本"]] },
   numbers: { e:"🔢", name:"數字", en:"Numbers", videos:[
     ["xNw1SSz18Gg","How Many Fingers?","Super Simple Songs","兒歌"],["TdDypyS_5zE","Ten In The Bed","Super Simple Songs","兒歌"],
     ["DR-cfDsHCGA","Counting 1-10 Song","The Singing Walrus","兒歌"],["85M1yxIcHpw","Let's Count 1-10","Dream English Kids","兒歌"],
@@ -607,15 +612,111 @@ const TOPICS = {
     ["XcW9Ct000yY","The Sun Comes Up!","Dream English Kids","兒歌"],["CEFL-4weVsI","Sunny Day","Super Simple Songs","兒歌"],
     ["LFrKYjrIDs8","Rain Rain Go Away","Super Simple Songs","兒歌"],["58DdtXSDseM","Little Cloud","World of Eric Carle","繪本"],
     ["FK2IlbyUPOo","Maisy's Wonderful Weather Book","JohnsonEnglish","繪本"],["rUC7OXK6vgo","Tap Tap Boom Boom","Story Time Pals","繪本"]] },
-  week: { e:"📅", name:"星期", en:"Days of the Week", yt:"PLD_3F4w1Rp_v4XBW79al8a14e1VVD86A5", videos:[] }
+  week: { e:"📅", name:"星期", en:"Days of the Week", yt:"PLD_3F4w1Rp_v4XBW79al8a14e1VVD86A5", videos:[] },
+  months: { e:"🗓️", name:"月份", en:"Months", videos:[
+    ["gtc4c1JlAEM","The Months Chant","Super Simple Songs","兒歌"],["R_GIt4Ccorc","The Months Chant（布偶版）","Super Simple Songs","兒歌"],
+    ["Fe9bnYRzFvk","Months of the Year Song","The Singing Walrus","兒歌"],["v608v42dKeI","Months of the Year Song","Dream English Kids","兒歌"],
+    ["-d3jkbP1xc8","12 Months of the Year","The Kiboomers","兒歌"],["5enDRrWyXaw","Months Of The Year Song","KidsTV123","兒歌"],
+    ["woIpDIQBXUU","Chicken Soup with Rice","mrdovecottage","繪本"]] },
+  feelings: { e:"😊", name:"心情", en:"Feelings", videos:[
+    ["lQZX1IIAnLw","This Is A Happy Face","Super Simple Songs","兒歌"],["l4WNrvVjiTw","If You're Happy","Super Simple Songs","兒歌"],
+    ["tVlcKp3bWH8","Hello!","Super Simple Songs","兒歌"],["KivttwaXQZ4","Feelings Song","The Singing Walrus","兒歌"],
+    ["a1NIWCr0R-k","Feelings – Word Power","Pinkfong","兒歌"],["i1CWo1lEN0c","How Do You Feel?","Bookworm Squirm","繪本"],
+    ["W6wIEp-M4tg","The Color Monster","Mr. Brooks Reads","繪本"],["wylzbbSL668","Grumpy Monkey","Toadstools and Fairy Dust","繪本"]] },
+  supplies: { e:"✏️", name:"文具", en:"School Supplies", videos:[
+    ["dbklZrO5H78","Do You Have A Crayon?","Super Simple Songs","兒歌"],["0DqkEfKXT5Y","Mr. Blackboard","Super Simple Songs","兒歌"],
+    ["aVSnDZHNEQc","What is In Your Bag?","Dream English Kids","兒歌"],["g7kK989HiRQ","School Supplies – Talking Flashcards","Maple Leaf Learning","單字"],
+    ["hjFaqDNUVFo","School Supplies Song","Fun Kids English","兒歌"],["AS5nhKzaOqo","What's in My Bag?","English Singsing","兒歌"],
+    ["o-Mg4u4fcUI","Pete the Cat: Rocking in My School Shoes","LolliPop Animated Book","繪本"],["clPMQDx4JIo","The Day The Crayons Quit","Buddy Son Storytime","繪本"]] },
+  toys: { e:"🧸", name:"玩具", en:"Toys", videos:[
+    ["KkB3jcqyQ5g","I Have A Toy","Noodle & Pals","兒歌"],["GGbm73UAfUs","What's Inside The Toy Box?","Noodle & Pals","兒歌"],
+    ["BoJBeGUHGv8","Toy – Word Power","Pinkfong","兒歌"],["OuUQ1DbDigc","The Toy Song","Ray Murphy","兒歌"],
+    ["eb53_Kdc1XI","Toy Song – What's in the Box?","English Singsing","兒歌"],["OjmWon9KebI","Can You Please Help Me?","Super Simple Songs","兒歌"],
+    ["xNmcAnILJuY","Corduroy","Little Cozy Nook","繪本"]] },
+  family: { e:"👨‍👩‍👧", name:"家人", en:"Family", videos:[
+    ["yDua9ms9_eg","The People In My Family","Super Simple Songs","兒歌"],["ecm9HEFcfdQ","The Family Tree","Super Simple Songs","兒歌"],
+    ["AIgJJV6-stM","I Love My Family","Super Simple Songs","兒歌"],["Te2M7oYFQgA","Family – Word Power","Pinkfong","兒歌"],
+    ["kCka94jeGTk","Finger Family","CoComelon","兒歌"],["FXqPs1IvtNs","Family Song","Dream English Kids","兒歌"],
+    ["gMpecJKW0jM","The Family Book","READ IT AGAIN","繪本"]] },
+  animals: { e:"🐾", name:"動物", en:"Animals", videos:[
+    ["pWepfJ-8XU0","I Have A Pet","Super Simple Songs","兒歌"],["OwRmivbNgQk","Let's Go To The Zoo","Super Simple Songs","兒歌"],
+    ["zXEq-QO3xTg","The Animals On The Farm","Super Simple Songs","兒歌"],["_6HzoUcx3eo","Old MacDonald Had A Farm","Super Simple Songs","兒歌"],
+    ["GoSq-yZcJ-4","Walking In The Jungle","Super Simple Songs","兒歌"],["6_woMd8P-mM","Dear Zoo","Bri Reads","繪本"],
+    ["QpCebCxrPVk","From Head to Toe","Buddy Son Storytime","繪本"]] },
+  body: { e:"🙆", name:"身體部位", en:"Body Parts", videos:[
+    ["RuqvGiZi0qg","Head Shoulders Knees And Toes","Super Simple Songs","兒歌"],["ZanHgPprl-0","Head Shoulders Knees & Toes (Sing It)","Super Simple Songs","兒歌"],
+    ["eBVqcTEC3zQ","One Little Finger","Super Simple Songs","兒歌"],["hXxHonmYz6c","Open Shut Them","Super Simple Songs","兒歌"],
+    ["B2pmcJPQW3Q","Eyes Nose Mouth Ears Song","Maple Leaf Learning","兒歌"],["2Hmq74bQP6s","My Face – Talking Flashcards","Maple Leaf Learning","單字"],
+    ["pzc4lGh19G8","From Head to Toe","World of Eric Carle","繪本"]] },
+  fruit: { e:"🍎", name:"水果", en:"Fruit", videos:[
+    ["mfReSbQ7jzE","Fruit Song for Kids","The Singing Walrus","兒歌"],["DDjOLRNby20","Fruit Is Yummy","Super Simple Songs","兒歌"],
+    ["r5WLXZspD1M","Apples & Bananas","Super Simple Songs","兒歌"],["0lS9btv3GVk","10 Apples On My Head","Super Simple Songs","兒歌"],
+    ["UssT9E-WCDU","Fruit – Talking Flashcards","Maple Leaf Learning","單字"],["baviOUK7TnI","I Love Fruit","Maple Leaf Learning","兒歌"],
+    ["vkYmvxP0AJI","Eric Carle reads The Very Hungry Caterpillar","Puffin Books","繪本"],["btFCtMhF3iI","The Very Hungry Caterpillar","Brightly Storytime","繪本"]] },
+  food: { e:"🍔", name:"食物", en:"Food", videos:[
+    ["frN3nvhIHUk","Do You Like Broccoli Ice Cream?","Super Simple Songs","兒歌"],["ddDN30evKPc","Do You Like Spaghetti Yogurt?","Super Simple Songs","兒歌"],
+    ["xIfPQJidQHY","Are You Hungry?","Super Simple Songs","兒歌"],["34P24YLCRhM","Are You Hungry? Part 2","Noodle & Pals","兒歌"],
+    ["yUw3-im44qY","What Do You Want To Eat?","Dream English Kids","兒歌"],["YCVindaVQPA","Yummy Vegetables","Maple Leaf Learning","兒歌"],
+    ["RE5tvaveVak","Vegetable Song","The Singing Walrus","兒歌"],["M28euBtNMUU","The Pigeon Finds a Hot Dog","Super Fun Story Time!","繪本"]] },
+  drinks: { e:"🥤", name:"飲料", en:"Drinks", videos:[
+    ["Gtb_jK1scL8","I'm Thirsty!","Fun Kids English","兒歌"],["qgu-MsyVMd8","Family Finger Drinks Song","Dream English Kids","兒歌"],
+    ["A_AJrtGtC3Y","Drinks – Thirsty!","English Singsing","兒歌"],["6de53XyJ68c","What Drink Is in the Cup?","English Singsing","兒歌"]] },
+  rooms: { e:"🏠", name:"房間", en:"Rooms", videos:[
+    ["CnevsHDtJXo","Hide & Seek (Around The House)","Noodle & Pals","兒歌"],["uP3qXCkKIto","Can You Find The Cat?","Noodle & Pals","兒歌"],
+    ["IjnlkdZvYTE","Rooms of the House Song","Dream English Kids","兒歌"],["WfLBN0FVYNM","Where Are You? – Rooms In A House","Wormhole Learning","兒歌"],
+    ["aOSJZbHoiY8","Parts of the House","Fun Kids English","單字"],["1uhyQqXs-8E","The Napping House","Storytime Now!","繪本"]] },
+  jobs: { e:"👩‍🍳", name:"職業", en:"Jobs", videos:[
+    ["5rdlXji2jR0","When I Grow Up","Super Simple Songs","兒歌"],["w2ZkIlB8xDw","Hello, What Do You Do?","Noodle & Pals","兒歌"],
+    ["ckKQclquAXU","Jobs Song for Kids","Fun Kids English","兒歌"],["P8rSk4wFMdU","Jobs Action Song","Dream English Kids","兒歌"],
+    ["eejZ4UvMqoc","What Do You Want To Be?","Planet Pop","兒歌"],["tQ03ENVgRfg","Jobs – Talking Flashcards","Maple Leaf Learning","單字"],
+    ["CEmTMTt9ujI","When I Grow Up (Weird Al)","Mr. Z","繪本"]] },
+  subjects: { e:"📚", name:"科目", en:"School Subjects", videos:[
+    ["JoDm0RC5gk8","School Subjects Song","Fun Kids English","兒歌"],["AnZxeX_8mVk","What's Your Favorite Subject?","English Singsing","兒歌"],
+    ["WGETFf1o2Ik","School Subjects Song","KoKoPang","兒歌"]] },
+  routine: { e:"⏰", name:"日常作息", en:"Daily Routine", videos:[
+    ["4XLQpRI_wOQ","This Is The Way","Super Simple Songs","兒歌"],["pEx5entLOFQ","This Is The Way – Daily Routines","Noodle & Pals","兒歌"],
+    ["eUXkj6j6Ezw","Wake Up!","Dream English Kids","兒歌"],["1GDFa-nEzlg","This Is The Way We Get Dressed","Super Simple Songs","兒歌"],
+    ["HVYXHMY7wvo","The Bath Song","Super Simple Songs","兒歌"],["v1YjJmMvnOw","This Is The Way We Go To Bed","Super Simple Songs","兒歌"],
+    ["-jBfb33_KHU","Put On Your Shoes","Super Simple Songs","兒歌"],["HD1g3P-nKWo","Llama Llama Red Pajama","Penguin Books USA","繪本"]] },
+  halloween: { e:"🎃", name:"萬聖節", en:"Halloween", videos:[
+    ["4jxcWlq3CBg","Knock Knock, Trick Or Treat?","Super Simple Songs","兒歌"],["aZHxiShEUtg","Knock Knock, Trick Or Treat – Part 2","Super Simple Songs","兒歌"],
+    ["HdsxHxrDEzs","Knock Knock, Trick Or Treat?","Noodle & Pals","兒歌"],["Pbl4BNkAq_U","The Skeleton Dance","Super Simple Songs","兒歌"],
+    ["S0o3alfcA24","10 Monsters In The Bed","Super Simple Songs","兒歌"],["9FLl3bM8VLA","Go Away Big Green Monster","Bri Reads","繪本"],
+    ["EZVgZPcMm3Y","Knock Knock Trick or Treat（故事版）","Super Simple Storytime","繪本"]] },
+  christmas: { e:"🎄", name:"聖誕節", en:"Christmas", videos:[
+    ["4YBGRGBj7_w","Jingle Bells","Super Simple Songs","兒歌"],["mGAYzlqj-aE","S-A-N-T-A","Super Simple Songs","兒歌"],
+    ["WYYJ7yaL9WU","Five Little Elves","Super Simple Songs","兒歌"],["ZUi1YJVChpg","Hello, Reindeer","Super Simple Songs","兒歌"],
+    ["T4-StWTYK7E","Candy Cane Tree","Super Simple Songs","兒歌"],["7Rh2qJAybdM","Santa Claus is Coming to Town","Sing with Bella","兒歌"],
+    ["XNmh9eMhE64","We Wish You A Merry Christmas","Kids Tv","兒歌"],["85xkRSof_Ks","Angel Band","Wee Sing","兒歌"]] },
+  moon: { e:"🥮", name:"中秋節", en:"Moon Festival", videos:[
+    ["UCWjgKLGrFY","The Round Moon","iLab Kids' Songs","兒歌"],["CCddB7j1uzI","Moon Festival Fun","赫書文化HuGiggles","兒歌"],
+    ["t_WfJ8wEFq0","Papa, Please Get The Moon For Me","Buddy Son Storytime","繪本"],["m-5LbBEAtuo","Mooncakes","Readalotamus","繪本"],
+    ["aPSxvxUiqos","A Big Mooncake for Little Star","Anne Miranda","繪本"]] }
 };
 const TOPIC_OF = {
-  "HWG B1|Lesson 0":"numbers", "HWG B1|Lesson 2":"numbers", "WW B1|Lesson 0":"numbers", "WW B1|Lesson 1":"numbers",
-  "SF B1|Lesson 0":"numbers", "SF B1|Lesson 2":"numbers", "WW B3|Lesson 0":"numbers", "SF B3|Lesson 0":"numbers", "HWG B3|Unit 0":"numbers",
-  "HWG B1|Lesson 4":"colors", "WW B1|Lesson 4":"colors", "HL B1|Lesson 2":"colors",
-  "WW B3|Lesson 1":"weather", "HWG B3|Unit 1":"weather", "SF B5|Lesson 3":"weather", "KS B3|Lesson 1":"weather", "HL B3|Lesson 1":"weather",
-  "HWG B5|Unit 1":"week", "WW B5|Lesson 3":"week", "SF B5|Lesson 1":"week", "HL B1|Lesson 4":"week", "KS B1|Lesson 5":"week"
+  "HWG B1|Lesson 0":["numbers","abc"], "HWG B1|Lesson 1":"abc", "HWG B1|Lesson 2":["numbers","abc"], "HWG B1|Lesson 3":["supplies","abc"], "HWG B1|Lesson 4":["colors","abc"], "HWG B1|補充":"halloween",
+  "WW B1|Lesson 0":["numbers","abc"], "WW B1|Lesson 1":["numbers","abc"], "WW B1|Lesson 2":["feelings","abc"], "WW B1|Lesson 3":["toys","abc"], "WW B1|Lesson 4":["colors","abc"], "WW B1|補充":"christmas",
+  "SF B1|Lesson 0":"numbers", "SF B1|Lesson 1":"abc", "SF B1|Lesson 2":["numbers","abc"], "SF B1|Lesson 3":"abc", "SF B1|Lesson 4":["feelings","abc"], "SF B1|補充":"christmas",
+  "WW B3|Lesson 0":"numbers", "WW B3|Lesson 1":"weather", "WW B3|Lesson 3":"supplies", "WW B3|補充":"halloween",
+  "SF B3|Lesson 0":"numbers", "SF B3|Lesson 1":"family", "SF B3|Lesson 2":"jobs", "SF B3|Lesson 3":"rooms", "SF B3|Lesson 4":"animals", "SF B3|補充":"halloween",
+  "HWG B3|Unit 0":"numbers", "HWG B3|Unit 1":"weather", "HWG B3|Unit 2":"feelings", "HWG B3|Unit 3":["fruit","food"], "HWG B3|Unit 4":["drinks","food"], "HWG B3|補充":"moon",
+  "HWG B5|Unit 1":"week", "HWG B5|Unit 2":"subjects", "HWG B5|Unit 4":"animals", "HWG B5|補充":"christmas",
+  "WW B5|Lesson 1":"drinks", "WW B5|Lesson 2":"fruit", "WW B5|Lesson 3":"week", "WW B5|Lesson 4":"subjects",
+  "SF B5|Lesson 1":"week", "SF B5|Lesson 2":"routine", "SF B5|Lesson 3":"weather", "SF B5|Lesson 4":"subjects",
+  "WW B7|Lesson 3":"food", "WW B7|Lesson 4":"routine", "WW B7|補充":"moon",
+  "SF B7|Lesson 3":["fruit","food"], "SF B7|Lesson 4":"food", "SF B7|補充":"moon",
+  "HWG B7|Unit 4":"routine",
+  "WW B9|補充":"months",
+  "HWG B9|Unit 4":"months", "HWG B9|補充":["halloween","christmas","moon"],
+  "KS B1|Lesson 1":["family","jobs"], "KS B1|Lesson 2":"animals", "KS B1|Lesson 3":"rooms", "KS B1|Lesson 5":"week",
+  "HL B1|Lesson 1":["family","jobs"], "HL B1|Lesson 2":["rooms","colors","supplies"], "HL B1|Lesson 4":"week", "HL B1|Lesson 5":["months","christmas"], "HL B1|Lesson 6":"animals",
+  "HL B2|Lesson 1":"body", "HL B2|Lesson 3":["drinks","food"], "HL B2|Lesson 4":"food",
+  "KS B3|Lesson 1":"weather", "KS B3|Lesson 2":"body", "KS B3|Lesson 3":"animals", "KS B3|Lesson 4":"jobs",
+  "HL B3|Lesson 1":"weather", "HL B3|Lesson 2":"subjects", "HL B3|Lesson 4":"jobs", "HL B3|補充":"halloween",
+  "HL B4|Lesson 1":"food", "HL B4|Lesson 3":["animals","fruit"], "HL B4|Lesson 5":"body",
+  "KS B5|Lesson 3":"jobs", "KS B5|Lesson 6":"fruit"
 };
+const topicsOf = (code, lesson) => [].concat(TOPIC_OF[code + "|" + lesson] || []);
 /* 某一冊在網站上的位置（給「其他課也用得到」的連結用） */
 function bookHash(b){
   return b.grade.startsWith("國") ? encodeURIComponent(b.grade) + "/" + encodeURIComponent(b.publisher)
@@ -629,7 +730,7 @@ function renderTopic(tid, code, lesson, idx){
             : `https://www.youtube.com/embed/${ids[idx]}?playlist=${ids.slice(idx + 1).concat(ids.slice(0, idx)).join(",")}&rel=0`;
   const ytUrl = t.yt ? `https://www.youtube.com/playlist?list=${t.yt}` : `https://www.youtube.com/watch_videos?video_ids=${ids.join(",")}`;
   const uses = [];
-  BOOKS.forEach(b => b.lessons.forEach(([name]) => { if (TOPIC_OF[b.code + "|" + name] === tid) uses.push({ b, name }); }));
+  BOOKS.forEach(b => b.lessons.forEach(([name]) => { if (topicsOf(b.code, name).includes(tid)) uses.push({ b, name }); }));
   const here = uses.find(u => u.b.code === code && u.name === lesson);
   const from = here ? `${esc(here.b.code)} ${esc(here.name)} · ` : "";
   $("topic").innerHTML = `
