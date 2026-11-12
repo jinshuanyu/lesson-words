@@ -101,6 +101,33 @@
   .lesson:hover .open{background:var(--c-primary-deep)}
   .empty{padding:1.5rem 1rem;text-align:center;color:var(--c-muted);background:var(--c-primary-tint);border-radius:12px}
 
+  /* ---- 每課配的兒歌／繪本影片 ---- */
+  .lesson-foot{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap}
+  .song{display:inline-flex;align-items:center;gap:.25rem;font-size:.82rem;font-weight:700;color:var(--c-primary-deep);background:var(--c-primary-soft);border-radius:10px;padding:.3rem .7rem;transition:background .15s,color .15s}
+  .song:hover{background:#e3dfee}
+  .topic-head{display:flex;align-items:center;gap:.7rem;margin:0 0 .8rem}
+  .topic-head .e{display:grid;place-items:center;flex:0 0 auto;width:2.8rem;height:2.8rem;border-radius:14px;background:var(--c-primary);color:#fff;font-size:1.5rem}
+  .topic-head h3{font-size:1.4rem;font-weight:900;margin:0;line-height:1.25;color:#0f172a}
+  .topic-head h3 small{display:block;font-size:.85rem;font-weight:500;color:var(--c-muted)}
+  .player{position:relative;aspect-ratio:16/9;border-radius:14px;overflow:hidden;background:#000;box-shadow:0 10px 24px rgba(95,85,130,.18)}
+  .player iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+  .vlist{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:.6rem;margin-top:.9rem}
+  .v{display:flex;gap:.6rem;align-items:center;border:1.5px solid var(--c-border);border-radius:12px;padding:.45rem;background:#fff;cursor:pointer;text-align:left;font-family:inherit;font-size:inherit;color:inherit}
+  .v:hover{border-color:var(--c-primary)}
+  .v[aria-current="true"]{border-color:var(--c-primary);background:var(--c-primary-tint);box-shadow:0 0 0 2px var(--c-primary-soft)}
+  .v img{width:96px;aspect-ratio:16/9;object-fit:cover;border-radius:8px;flex:0 0 auto}
+  .v .t{font-size:.86rem;font-weight:700;line-height:1.3}
+  .v .t small{display:block;font-weight:400;color:var(--c-muted);font-size:.75rem}
+  .v .k{font-size:.68rem;font-weight:700;color:var(--c-primary-deep);background:var(--c-primary-soft);border-radius:999px;padding:0 .45rem;margin-right:.3rem}
+  .topic-lessons{display:flex;flex-wrap:wrap;gap:.4rem;margin:.4rem 0 1rem}
+  .topic-lessons a{font-size:.82rem;font-weight:700;color:var(--c-primary-deep);background:var(--c-primary-soft);border-radius:999px;padding:.15rem .7rem;text-decoration:none}
+  .topic-lessons a:hover{background:var(--c-primary);color:#fff}
+  .topic-lessons a.here{background:var(--c-primary);color:#fff}
+  .ytlink{font-size:.85rem;color:var(--c-muted)}
+  .ytlink a{color:var(--c-primary-deep);font-weight:700}
+  .sub{display:flex;align-items:center;gap:.6rem;font-size:.95rem;font-weight:900;color:var(--c-primary-deep);margin:1.2rem 0 .5rem;letter-spacing:.06em}
+  .sub::after{content:"";flex:1;height:1px;background:var(--c-border)}
+
   .note{margin-top:1.8rem;padding:.9rem 1.1rem;background:var(--c-primary-tint);border-radius:12px;font-size:.88rem;color:#475569;border:1px solid var(--c-border)}
   .note p{margin:.2rem 0}
   /* ---- footer：與 Word Mapper 相同結構（聯絡 / 贊助 / 工具互連 / 版權） ---- */
@@ -135,6 +162,8 @@
     .grade .g{font-size:1.8rem}
     .lessons{grid-template-columns:1fr}
     .crumb{font-size:1.3rem}
+    .vlist{grid-template-columns:1fr}
+    .topic-head h3{font-size:1.2rem}
   }
 </style>
 </head>
@@ -163,6 +192,14 @@
       <p class="crumb" id="crumb"></p>
       <div class="tabs" id="tabs" role="tablist"></div>
       <div id="books"></div>
+    </div>
+  </section>
+
+  <!-- 第三層：某一課配的兒歌／繪本影片 -->
+  <section id="viewTopic" hidden>
+    <div class="inner">
+      <button class="back" type="button" id="topicBack">← 回字表</button>
+      <div id="topic"></div>
     </div>
   </section>
 
@@ -531,12 +568,81 @@ const GRADE_NUM = { "小三":3, "小四":4, "小五":5, "小六":6, "國一":7, 
 function lessonCards(b){
   return b.lessons.map(([name, suffix, words]) => {
     const list = words.includes(",") ? words.split(",").map(s => s.trim()).filter(Boolean) : words.trim().split(/\s+/);
+    const tid = TOPIC_OF[b.code + "|" + name];
+    const song = tid ? `<span class="song" data-topic="${esc(tid)}" data-code="${esc(b.code)}" data-lesson="${esc(name)}">🎵 兒歌繪本</span>` : "";
     return `<a class="lesson" href="${listUrl(b.code + suffix, list)}">
         <div class="lesson-top"><span class="lesson-name">${esc(name)}</span><span class="lesson-count">${list.length} 字</span></div>
         <div class="words">${esc(list.join(", "))}</div>
-        <span class="open">開啟字表 →</span>
+        <div class="lesson-foot"><span class="open">開啟字表 →</span>${song}</div>
       </a>`;
   }).join("");
+}
+/* 🎵 按鈕在 <a> 裡面：攔下點擊，改去影片頁 */
+document.addEventListener("click", e => {
+  const s = e.target.closest(".song");
+  if (!s) return;
+  e.preventDefault(); e.stopPropagation();
+  location.hash = "主題/" + encodeURIComponent(s.dataset.topic) + "/" + encodeURIComponent(s.dataset.code) + "/" + encodeURIComponent(s.dataset.lesson);
+});
+
+/* ============================================================
+   每課配的兒歌／繪本影片。
+   TOPICS：一個主題一組影片（id、e、name、en、videos；videos 每項 [YouTube id, 片名, 頻道, 標籤]；
+           已有 YouTube 播放清單的用 yt 填清單 id，videos 留空）。
+   TOPIC_OF："冊代碼|課名" → 主題 id。沒列到的課不顯示 🎵。
+   ============================================================ */
+const TOPICS = {
+  numbers: { e:"🔢", name:"數字", en:"Numbers", videos:[
+    ["xNw1SSz18Gg","How Many Fingers?","Super Simple Songs","兒歌"],["TdDypyS_5zE","Ten In The Bed","Super Simple Songs","兒歌"],
+    ["DR-cfDsHCGA","Counting 1-10 Song","The Singing Walrus","兒歌"],["85M1yxIcHpw","Let's Count 1-10","Dream English Kids","兒歌"],
+    ["N9mN6ROBJMw","Six In The Bed","Noodle & Pals","兒歌"],["S84fcGdEULk","Counting Up To 20","Super Simple Songs","兒歌 11–20"],
+    ["uPJEqUB2CxA","Ten Black Dots","Miss Pam Reads","繪本"],["i3rXCtJxgag","Chicka Chicka 1, 2, 3","Buddy Son Storytime","繪本"]] },
+  colors: { e:"🎨", name:"顏色", en:"Colors", videos:[
+    ["jYAWf8Y91hA","I See Something Blue","Super Simple Songs","兒歌"],["Asb8N0nz9OI","I See Something Pink","Super Simple Songs","兒歌"],
+    ["zxIpA5nF_LY","What's Your Favorite Color?","Super Simple Songs","兒歌"],["qhOTU8_1Af4","Learn Colors – Preschool Chant","ELF Learning","兒歌"],
+    ["VqRBxO2GDFA","I Can Sing a Rainbow","The Kiboomers","兒歌"],["ZmlnKqoRj60","Brown Bear, Brown Bear","Miss Pam Reads","繪本"],
+    ["fjI_DRAdBIA","Mouse Paint","Storytime Sunshine","繪本"],["jp3cemzfRzY","Mixed","Buddy Son Storytime","繪本"]] },
+  weather: { e:"🌤️", name:"天氣", en:"Weather", videos:[
+    ["rD6FRDd9Hew","How's The Weather?","Super Simple Songs","兒歌"],["I8GeA3anPdo","How's the Weather Song","Maple Leaf Learning","兒歌"],
+    ["XcW9Ct000yY","The Sun Comes Up!","Dream English Kids","兒歌"],["CEFL-4weVsI","Sunny Day","Super Simple Songs","兒歌"],
+    ["LFrKYjrIDs8","Rain Rain Go Away","Super Simple Songs","兒歌"],["58DdtXSDseM","Little Cloud","World of Eric Carle","繪本"],
+    ["FK2IlbyUPOo","Maisy's Wonderful Weather Book","JohnsonEnglish","繪本"],["rUC7OXK6vgo","Tap Tap Boom Boom","Story Time Pals","繪本"]] },
+  week: { e:"📅", name:"星期", en:"Days of the Week", yt:"PLD_3F4w1Rp_v4XBW79al8a14e1VVD86A5", videos:[] }
+};
+const TOPIC_OF = {
+  "HWG B1|Lesson 0":"numbers", "HWG B1|Lesson 2":"numbers", "WW B1|Lesson 0":"numbers", "WW B1|Lesson 1":"numbers",
+  "SF B1|Lesson 0":"numbers", "SF B1|Lesson 2":"numbers", "WW B3|Lesson 0":"numbers", "SF B3|Lesson 0":"numbers", "HWG B3|Unit 0":"numbers",
+  "HWG B1|Lesson 4":"colors", "WW B1|Lesson 4":"colors", "HL B1|Lesson 2":"colors",
+  "WW B3|Lesson 1":"weather", "HWG B3|Unit 1":"weather", "SF B5|Lesson 3":"weather", "KS B3|Lesson 1":"weather", "HL B3|Lesson 1":"weather",
+  "HWG B5|Unit 1":"week", "WW B5|Lesson 3":"week", "SF B5|Lesson 1":"week", "HL B1|Lesson 4":"week", "KS B1|Lesson 5":"week"
+};
+/* 某一冊在網站上的位置（給「其他課也用得到」的連結用） */
+function bookHash(b){
+  return b.grade.startsWith("國") ? encodeURIComponent(b.grade) + "/" + encodeURIComponent(b.publisher)
+       : "國小/" + encodeURIComponent(b.publisher) + "/" + encodeURIComponent(seriesOf(b)) + "/" + volOf(b);
+}
+function renderTopic(tid, code, lesson, idx){
+  const t = TOPICS[tid]; if (!t) return renderHome();
+  idx = idx || 0;
+  const ids = t.videos.map(v => v[0]);
+  const src = t.yt ? `https://www.youtube.com/embed/videoseries?list=${t.yt}&rel=0`
+            : `https://www.youtube.com/embed/${ids[idx]}?playlist=${ids.slice(idx + 1).concat(ids.slice(0, idx)).join(",")}&rel=0`;
+  const ytUrl = t.yt ? `https://www.youtube.com/playlist?list=${t.yt}` : `https://www.youtube.com/watch_videos?video_ids=${ids.join(",")}`;
+  const uses = [];
+  BOOKS.forEach(b => b.lessons.forEach(([name]) => { if (TOPIC_OF[b.code + "|" + name] === tid) uses.push({ b, name }); }));
+  const here = uses.find(u => u.b.code === code && u.name === lesson);
+  const from = here ? `${esc(here.b.code)} ${esc(here.name)} · ` : "";
+  $("topic").innerHTML = `
+    <div class="topic-head"><span class="e">${t.e}</span>
+      <h3>${from}${esc(t.name)} ${esc(t.en)}<small>兒歌、繪本朗讀${t.videos.length ? " " + t.videos.length + " 部" : ""} · 一部播完自動接下一部</small></h3></div>
+    <div class="player"><iframe src="${src}" title="${esc(t.name)}" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
+    ${t.videos.length ? `<div class="vlist">${t.videos.map((v, i) =>
+      `<button class="v" type="button" data-i="${i}" aria-current="${i === idx}"><img src="https://i.ytimg.com/vi/${v[0]}/mqdefault.jpg" alt="" loading="lazy"><span class="t"><span class="k">${esc(v[3])}</span>${esc(v[1])}<small>${esc(v[2])}</small></span></button>`).join("")}</div>` : ""}
+    <p class="ytlink" style="margin-top:.8rem">想在 YouTube 開：<a href="${ytUrl}" target="_blank" rel="noopener noreferrer">播放整個清單 ↗</a></p>
+    <div class="sub">📖 這些課也用得到</div>
+    <div class="topic-lessons">${uses.map(u => `<a href="#${bookHash(u.b)}" class="${u === here ? "here" : ""}">${esc(u.b.code)} ${esc(u.name)}</a>`).join("")}</div>`;
+  $("topic").querySelectorAll(".v").forEach(v => v.onclick = () => renderTopic(tid, code, lesson, +v.dataset.i));
+  $("topicBack").onclick = () => { if (here) location.hash = bookHash(here.b); else go(""); };
 }
 
 /* ---------- 首頁：國小＝出版社卡，國中＝年級卡 ---------- */
@@ -631,12 +737,14 @@ function go(grade, pub){ location.hash = grade ? encodeURIComponent(grade) + (pu
 function goPub(pub, code, vol){ location.hash = "國小/" + encodeURIComponent(pub) + (code ? "/" + encodeURIComponent(code) + (vol ? "/" + vol : "") : ""); }
 function route(){
   const parts = location.hash.slice(1).split("/").map(decodeURIComponent);
-  let view = null;
-  if (parts[0] === "國小" && PUBLISHERS["國小"].includes(parts[1])) view = () => renderPub(parts[1], parts[2], parseInt(parts[3], 10));
+  let view = null, topic = null;
+  if (parts[0] === "主題" && TOPICS[parts[1]]) topic = () => renderTopic(parts[1], parts[2], parts[3]);
+  else if (parts[0] === "國小" && PUBLISHERS["國小"].includes(parts[1])) view = () => renderPub(parts[1], parts[2], parseInt(parts[3], 10));
   else if (GRADES.some(x => x.items.includes(parts[0])) && booksFor(parts[0]).length) view = () => renderGrade(parts[0], parts[1]);
-  $("viewGrades").hidden = !!view;
+  $("viewGrades").hidden = !!(view || topic);
   $("viewGrade").hidden = !view;
-  if (view) view(); else renderHome();
+  $("viewTopic").hidden = !topic;
+  if (topic) topic(); else if (view) view(); else renderHome();
   window.scrollTo(0, 0);
 }
 $("backBtn").onclick = () => go("");
