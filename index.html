@@ -75,6 +75,10 @@
   .vol[aria-selected="true"]{background:var(--c-primary);border-color:var(--c-primary);color:#fff;box-shadow:0 4px 10px rgba(136,126,166,.3)}
   .vol:disabled{opacity:.4;cursor:default;border-style:dashed}
   .pub.wide{width:auto;min-width:2.1rem;padding:0 .45rem;border-radius:999px;white-space:nowrap;font-size:.8rem}
+  .festcard{grid-column:1 / -1;text-align:left;display:flex;align-items:center;gap:1rem;padding:.9rem 1.1rem}
+  .festcard .p{font-size:2rem;flex:0 0 auto}
+  .festcard .p small{font-size:.85rem;color:var(--c-primary-deep)}
+  .festcard .series{margin-top:0;justify-content:flex-start}
 
   /* ---- 版本 ---- */
   .crumb{font-size:1.5rem;font-weight:900;margin:0 0 .2rem;color:#0f172a}
@@ -855,8 +859,49 @@ const TOPICS = {
   phonics_er: { e:"🅡", name:"拼讀 -er / -or", en:"Bossy R", videos:[
     ["mr6TitJodII","Bossy R! – ER, IR and UR","Jack Hartmann","拼讀"],["A18DQSnvG4E","Bossy R Pirate","Phonics Garden","拼讀"],
     ["iIQ4GvTShiw","R-controlled Vowels – er, ir, ur","Little Fox","拼讀"],["vhTdmBPL5hU","Bossy r – ur / ir / er","English4abc","拼讀"],
-    ["DHC-GWFNSL0","The Rules of Bossy R","StoryBots","拼讀"],["Lufx7a93XiQ","Bossy r – ar, er, ir, ur, or","English4abc","拼讀"]] }
+    ["DHC-GWFNSL0","The Rules of Bossy R","StoryBots","拼讀"],["Lufx7a93XiQ","Bossy r – ar, er, ir, ur, or","English4abc","拼讀"]] },
+  dragonboat: { e:"🐉", name:"端午節", en:"Dragon Boat Festival", videos:[
+    ["g00os7q8NqQ","Dragon Boat Festival","美樂蒂文教","兒歌"],["X2fxuOyTfOo","Dragon Boat","iLab Kids' Songs","兒歌"],
+    ["gsDnfdwu8gQ","Row the Dragon Boat","HESS ABC","兒歌"],["oKHLDPuI98Q","Dragon Boat Festival Story","China Travel","故事"],
+    ["jHn85PWfGmM","Dragon Boat Festival Wishes","BrainSnax","故事"],["nTUosnebYgE","The Beat of the Dragon Boat","CBC Kids","繪本"]] },
+  valentine: { e:"💝", name:"情人節", en:"Valentine's Day", videos:[
+    ["Qs4qZwIffjI","Making A Card For My Valentine","Super Simple Songs","兒歌"],["ug1pI-Ephns","Skidamarink","Super Simple Songs","兒歌"],
+    ["83a7wLOTsXk","Peekaboo, I Love You","Super Simple Songs","兒歌"],["kgAx_sQ0mqE","H-E-A-R-T","The Kiboomers","兒歌"],
+    ["rQAYTaFwARI","Pete the Cat: Valentine's Day is Cool","LolliPop Animated Book","繪本"],["Keqqo9ty7JI","The Littlest Valentine","The Joyful Bookshelf","繪本"],
+    ["tuk0Mzpz83k","Biscuit's Valentine's Day","Reading Pioneers Academy","繪本"],["Z73lAR_3x8c","Little Blue Truck's Valentine","Toadstools and Fairy Dust","繪本"]] },
+  thanksgiving: { e:"🦃", name:"感恩節", en:"Thanksgiving", videos:[
+    ["a728rGeMb54","Peekaboo, Thank You","Super Simple Songs","兒歌"],["ew9a1JKSfO0","I'm Thankful","Super Simple Songs","兒歌"],
+    ["J6Xn6qbs8cE","Thanksgiving Dinner","The Kiboomers","兒歌"],["VxfajHBG9Rg","Turkey Hokey Pokey","The Kiboomers","兒歌"],
+    ["_GXKsMSqLHA","Thanksgiving Day – Kids Vocab","English Singsing","單字"],["VvzMp5WUjls","The First Thanksgiving","Kids Academy","故事"],
+    ["rsgEv5l_gzY","Turkey Trouble","StoryTime Out Loud","繪本"]] }
 };
+
+/* ============================================================
+   節日主題字表：首頁國中下面的「節日」入口。每個節日一張卡，字表是各版本補充課湊起來的，
+   🎵 連到同名主題的影片頁。id 要跟 TOPICS 的 key 一樣。
+   ============================================================ */
+const FESTIVALS = [
+  { id:"halloween",    name:"萬聖節",   en:"Halloween",            words:"Halloween, bat, ghost, pumpkin, spider, vampire, witch, jack-o'-lantern, mummy, costume, haunted house, scary, candy, trick or treat, Happy Halloween" },
+  { id:"christmas",    name:"聖誕節",   en:"Christmas",            words:"Christmas, Christmas tree, Santa Claus, snowman, star, stocking, gift, bell, candy cane, reindeer, card, Merry Christmas" },
+  { id:"moon",         name:"中秋節",   en:"Moon Festival",        words:"Moon Festival, moon cake, pomelo, full moon, Chang-O, Jade Rabbit, lantern, have a barbecue" },
+  { id:"lunar",        name:"農曆新年", en:"Lunar New Year",       words:"Chinese New Year, firecrackers, lion dance, dragon dance, lucky money, red envelope, rice cake, spring couplet, tangerines, Happy New Year" },
+  { id:"valentine",    name:"情人節",   en:"Valentine's Day",      words:"Valentine's Day, card, flower, gift, heart, love, chocolate, rose" },
+  { id:"easter",       name:"復活節",   en:"Easter",               words:"Easter, egg, basket, the Easter bunny, color the eggs, go egg hunting" },
+  { id:"dragonboat",   name:"端午節",   en:"Dragon Boat Festival", words:"Dragon Boat Festival, dragon boat race, zongzi, sachet, stand an egg" },
+  { id:"thanksgiving", name:"感恩節",   en:"Thanksgiving",         words:"Thanksgiving, turkey, thankful, holiday, pie, family, dinner" }
+];
+function renderFestivals(){
+  $("crumb").innerHTML = "節日主題 各節日單字有聲字表<small>國小、國中都適用｜單字從各版本的節慶補充課整理</small>";
+  $("tabs").innerHTML = "";
+  $("books").innerHTML = `<section class="book"><div class="lessons">${FESTIVALS.map(f => {
+    const list = f.words.split(",").map(s => s.trim()).filter(Boolean);
+    const t = TOPICS[f.id];
+    return `<a class="lesson" href="${listUrl("節日 " + f.name, list)}">
+        <div class="lesson-top"><span class="lesson-name">${t ? t.e + " " : ""}${esc(f.name)} <small style="font-weight:500;color:var(--c-muted)">${esc(f.en)}</small></span><span class="lesson-count">${list.length} 字</span></div>
+        <div class="words">${esc(list.join(", "))}</div>
+        <div class="lesson-foot"><span class="open">開啟字表 →</span>${t ? `<span class="song" data-topic="${esc(f.id)}" data-code="節日" data-lesson="${esc(f.name)}">🎵 影片 ${t.videos.length} 部</span>` : ""}</div>
+      </a>`; }).join("")}</div></section>`;
+}
 const TOPIC_OF = {
   "HWG B1|Lesson 0":["numbers","abc"], "HWG B1|Lesson 1":"abc", "HWG B1|Lesson 2":["numbers","abc"], "HWG B1|Lesson 3":["supplies","abc"], "HWG B1|Lesson 4":["colors","abc"], "HWG B1|補充":"halloween",
   "WW B1|Lesson 0":["numbers","abc"], "WW B1|Lesson 1":["numbers","abc"], "WW B1|Lesson 2":["feelings","abc"], "WW B1|Lesson 3":["toys","abc"], "WW B1|Lesson 4":["colors","abc"], "WW B1|補充":"christmas",
@@ -899,7 +944,8 @@ function renderTopic(tid, code, lesson, idx){
   const uses = [];
   BOOKS.forEach(b => b.lessons.forEach(([name]) => { if (topicsOf(b.code, name).includes(tid)) uses.push({ b, name }); }));
   const here = uses.find(u => u.b.code === code && u.name === lesson);
-  const from = here ? `${esc(here.b.code)} ${esc(here.name)} · ` : "";
+  const fest = code === "節日" ? FESTIVALS.find(f => f.id === tid) : null;
+  const from = here ? `${esc(here.b.code)} ${esc(here.name)} · ` : fest ? "節日主題 · " : "";
   $("topic").innerHTML = `
     <div class="topic-head"><span class="e">${t.e}</span>
       <h3>${from}${esc(t.name)} ${esc(t.en)}<small>兒歌、繪本朗讀${t.videos.length ? " " + t.videos.length + " 部" : ""} · 一部播完自動接下一部</small></h3></div>
@@ -908,9 +954,9 @@ function renderTopic(tid, code, lesson, idx){
       `<button class="v" type="button" data-i="${i}" aria-current="${i === idx}"><img src="https://i.ytimg.com/vi/${v[0]}/mqdefault.jpg" alt="" loading="lazy"><span class="t"><span class="k">${esc(v[3])}</span>${esc(v[1])}<small>${esc(v[2])}</small></span></button>`).join("")}</div>` : ""}
     <p class="ytlink" style="margin-top:.8rem">想在 YouTube 開：<a href="${ytUrl}" target="_blank" rel="noopener noreferrer">播放整個清單 ↗</a></p>
     <div class="sub">📖 這些課也用得到</div>
-    <div class="topic-lessons">${uses.map(u => `<a href="#${bookHash(u.b)}" class="${u === here ? "here" : ""}">${esc(u.b.code)} ${esc(u.name)}</a>`).join("")}</div>`;
+    <div class="topic-lessons">${FESTIVALS.some(f => f.id === tid) ? `<a href="#節日" class="${fest ? "here" : ""}">🎉 節日主題字表</a>` : ""}${uses.map(u => `<a href="#${bookHash(u.b)}" class="${u === here ? "here" : ""}">${esc(u.b.code)} ${esc(u.name)}</a>`).join("")}</div>`;
   $("topic").querySelectorAll(".v").forEach(v => v.onclick = () => renderTopic(tid, code, lesson, +v.dataset.i));
-  $("topicBack").onclick = () => { if (here) location.hash = bookHash(here.b); else go(""); };
+  $("topicBack").onclick = () => { if (here) location.hash = bookHash(here.b); else if (fest) location.hash = "節日"; else go(""); };
 }
 
 /* ---------- 首頁：國小＝出版社卡，國中＝年級卡 ---------- */
@@ -951,8 +997,19 @@ function renderHome(){
         }).join("")}
       </div>
     </div>`).join("");
-  $("stages").innerHTML = elem + jr;
-  $("stages").querySelectorAll(".pubcard").forEach(c => c.onclick = () => goPub(c.dataset.pub));
+  const fest = `
+    <div class="stage">
+      <h2>節日</h2>
+      <div class="pubcards">
+        <button class="pubcard festcard" type="button" id="festBtn">
+          <span class="p">🎉<small>節日主題字表</small></span>
+          <div class="series">${FESTIVALS.map(f => `<span>${TOPICS[f.id] ? TOPICS[f.id].e + " " : ""}${esc(f.name)}</span>`).join("")}</div>
+        </button>
+      </div>
+    </div>`;
+  $("stages").innerHTML = elem + jr + fest;
+  $("festBtn").onclick = () => { location.hash = "節日"; };
+  $("stages").querySelectorAll(".pubcard[data-pub]").forEach(c => c.onclick = () => goPub(c.dataset.pub));
   $("stages").querySelectorAll(".pub:not(:disabled)").forEach(btn => btn.onclick = () => go(btn.dataset.grade, btn.dataset.pub));
 }
 
@@ -1007,6 +1064,7 @@ function route(){
   const parts = location.hash.slice(1).split("/").map(decodeURIComponent);
   let view = null, topic = null;
   if (parts[0] === "主題" && TOPICS[parts[1]]) topic = () => renderTopic(parts[1], parts[2], parts[3]);
+  else if (parts[0] === "節日") view = renderFestivals;
   else if (parts[0] === "國小" && PUBLISHERS["國小"].includes(parts[1])) view = () => renderPub(parts[1], parts[2], parseInt(parts[3], 10));
   else if (GRADES.some(x => x.items.includes(parts[0])) && booksFor(parts[0]).length) view = () => renderGrade(parts[0], parts[1]);
   $("viewGrades").hidden = !!(view || topic);
